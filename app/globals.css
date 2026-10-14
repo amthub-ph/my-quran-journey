@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.journey-input { display: block; width: 100%; min-height: 46px; border: 1px solid #dde3df; border-radius: 12px; padding: .6rem .8rem; background: white; color: #1f2933; }
+.journey-warning { padding: 1rem; border-radius: 12px; background: #e8f0ec; color: #264a3d; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+progress { height: 12px; accent-color: #315c4b; border-radius: 999px; overflow: hidden; }
+progress::-webkit-progress-bar { background: #e2e8e5; }
+progress::-webkit-progress-value { background: #315c4b; }
+progress::-moz-progress-bar { background: #315c4b; }
+
+:root {
+  --background: #f7f7f2;
+  --foreground: #1f2933;
+
+  --card: #ffffff;
+  --card-soft: #f2f5f3;
+
+  --primary: #315c4b;
+  --primary-hover: #264a3d;
+  --primary-soft: #e8f0ec;
+
+  --gold: #b89a5e;
+
+  --muted: #667085;
+  --border: #dde3df;
+
+  --success: #3d7a61;
+  --warning: #a67c3d;
+
+  --progress-track: #e2e8e5;
+  --progress-fill: #315c4b;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+ font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(49, 92, 75, 0.28);
+  outline-offset: 2px;
+}
+
+.quran-container {
+  width: min(100% - 32px, 1180px);
+  margin-inline: auto;
+}
+
+.quran-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.quran-btn-primary {
+  min-height: 46px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: white;
+  padding: 0.75rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.quran-btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.quran-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.quran-btn-secondary {
+  min-height: 46px;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--primary);
+  padding: 0.75rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quran-muted {
+  color: var(--muted);
+}
+
+.quran-progress {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--progress-track);
+}
+
+.quran-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--progress-fill);
+  transition: width 500ms ease;
+}
+
+.arabic-text {
+  font-family: var(--font-arabic), serif;
+  direction: rtl;
+  text-align: right;
+  line-height: 2;
+}
+
+@media (max-width: 640px) {
+  .quran-container {
+    width: min(100% - 24px, 1180px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
