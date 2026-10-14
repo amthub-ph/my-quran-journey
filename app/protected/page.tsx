@@ -45,7 +45,7 @@ export default async function ProtectedPage() {
   const dailyGoal = profile?.daily_goal || 10;
 
   return (
-    <JourneyShell title={`Assalāmu ʿalaykum, ${firstName}`}>
+    <JourneyShell>
       <div className="space-y-7">
 
         {/* HERO */}
