@@ -68,13 +68,13 @@ function VerifyOtpContent() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={6}
+             maxLength={8}
               required
               value={code}
               onChange={(e) =>
-                setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                setCode(e.target.value.replace(/\D/g, "").slice(0, 8))
               }
-              placeholder="Enter 6-digit code"
+            placeholder="Enter 8-digit code"
               className="w-full rounded-xl border px-4 py-3 text-center text-xl tracking-[0.35em] outline-none focus:border-[#315C4B]"
             />
           </div>
@@ -85,7 +85,7 @@ function VerifyOtpContent() {
 
           <button
             type="submit"
-            disabled={isLoading || code.length !== 6}
+            disabled={isLoading || code.length !== 8}
             className="w-full rounded-xl bg-[#315C4B] px-4 py-3 font-medium text-white disabled:opacity-50"
           >
             {isLoading ? "Verifying..." : "Verify & Continue"}
