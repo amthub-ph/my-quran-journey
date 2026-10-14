@@ -21,7 +21,7 @@ export default async function ReflectionsPage({
   .order("created_at", { ascending: false });
 
   return (
-    <JourneyShell title="My Reflections">
+  <JourneyShell>
       <section className="quran-card p-5 sm:p-6 space-y-4">
         <div>
           <h2 className="text-xl font-semibold">My Qur'an Reflections</h2>

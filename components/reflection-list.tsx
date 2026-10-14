@@ -26,14 +26,7 @@ const router = useRouter();
   return (
     <div className="space-y-6">
       <section className="quran-card p-5 sm:p-6">
-        <h2 className="text-xl font-semibold mb-2">
-          Write a Reflection
-        </h2>
-
-        <p className="text-sm text-[var(--muted)] mb-4">
-          Write your thoughts, lessons, reminders, or understanding from your
-          Qur'an reading.
-        </p>
+        
 {verseKey && (() => {
   const { ayah, chapter } = parseVerseKey(verseKey);
 

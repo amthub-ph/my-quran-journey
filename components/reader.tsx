@@ -111,7 +111,42 @@ async function save() {
       {content?.audio&&<div><p className="text-sm mb-2">Recitation: {content.reciter} · Quran Foundation</p><audio key={verse.key} ref={audioRef} controls preload="none" src={content.audio} className="w-full" onError={()=>setStatus("Audio could not be played. Check your connection and retry.")}>Your browser does not support audio playback.</audio></div>}
       {content?.notices.map((notice,i)=><p key={i} className="journey-warning" role="status">{notice}</p>)}
       {!!content?.notices.length&&<button className="quran-btn-secondary" onClick={()=>setRetry(r=>r+1)}>Retry translation / audio</button>}
-      <div className="flex flex-wrap gap-3"><button className="quran-btn-secondary" disabled={ayah===1||busy} onClick={()=>navigate(ayah-1)}>Previous ayah</button><button className="quran-btn-secondary" disabled={ayah===verses.length||busy} onClick={()=>navigate(ayah+1)}>Next ayah</button><label className="flex items-center gap-2">Go to<select aria-label="Go to ayah" className="journey-input" disabled={busy} value={ayah} onChange={e=>navigate(Number(e.target.value))}>{verses.map((v,i)=><option key={v.key} value={i+1}>{i+1}</option>)}</select></label></div>
+     <div className="flex flex-wrap items-center justify-between gap-4">
+  <button
+    className="quran-btn-secondary"
+    disabled={ayah === 1 || busy}
+    onClick={() => navigate(ayah - 1)}
+    aria-label="Previous ayah"
+  >
+    ←
+  </button>
+
+  <label className="flex items-center gap-3">
+    <span className="font-medium">Ayah</span>
+    <select
+      aria-label="Go to ayah"
+      className="journey-input"
+      disabled={busy}
+      value={ayah}
+      onChange={(e) => navigate(Number(e.target.value))}
+    >
+      {verses.map((v, i) => (
+        <option key={v.key} value={i + 1}>
+          {i + 1}
+        </option>
+      ))}
+    </select>
+  </label>
+
+  <button
+    className="quran-btn-secondary"
+    disabled={ayah === verses.length || busy}
+    onClick={() => navigate(ayah + 1)}
+    aria-label="Next ayah"
+  >
+    →
+  </button>
+</div>
      {ayah === verses.length ? (
   <button
     type="button"
@@ -131,12 +166,14 @@ async function save() {
     {busy ? "Please wait..." : "Pause & Continue Later"}
   </button>
 )}
-     <Link
-  href={`/reflections?verse=${verse.key}`}
-  className="quran-btn-secondary"
->
-  Add Reflection
-</Link> 
+  <div className="flex justify-end">
+  <Link
+    href={`/reflections?verse=${verse.key}`}
+    className="quran-btn-secondary"
+  >
+    Add Reflection
+  </Link>
+</div>
       <p aria-live="polite" className="text-sm min-h-6">{status||"Save your current position before leaving the reader."}</p>
     </section>
     <div className="flex justify-between gap-4">{surah>1?<Link className="underline" href={`/quran/${surah-1}`}>Previous surah</Link>:<span/>}{surah<114&&<Link className="underline" href={`/quran/${surah+1}`}>Next surah</Link>}</div>
