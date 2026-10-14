@@ -48,7 +48,7 @@ export function SignUpForm({
         },
       });
       if (error) throw error;
-     window.location.href = "/auth/sign-up-success";
+     window.location.href = `/auth/verify-otp?email=${encodeURIComponent(email)}`;
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
