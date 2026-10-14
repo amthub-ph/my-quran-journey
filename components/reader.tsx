@@ -31,6 +31,7 @@ export function Reader({surah,initialAyah,verses,initialLanguage,databaseWarning
     window.addEventListener("beforeunload",warn);return()=>window.removeEventListener("beforeunload",warn);
   },[dirty]);
   async function navigate(next: number) {
+    const scrollPosition = window.scrollY;
   audioRef.current?.pause();
 
   setAyah(next);
@@ -38,7 +39,7 @@ export function Reader({surah,initialAyah,verses,initialLanguage,databaseWarning
   setStatus("Saving progress...");
 
   window.history.replaceState(null, "", `/quran/${surah}?ayah=${next}`);
-
+requestAnimationFrame(() => window.scrollTo({ top: scrollPosition, behavior: "instant" }));
   try {
     const result = await savePosition(`${surah}:${next}`);
 
@@ -113,7 +114,7 @@ async function save() {
       {!!content?.notices.length&&<button className="quran-btn-secondary" onClick={()=>setRetry(r=>r+1)}>Retry translation / audio</button>}
      <div className="flex flex-wrap items-center justify-between gap-4">
   <button
-    className="quran-btn-secondary"
+   className="quran-btn-secondary flex h-16 w-16 items-center justify-center text-3xl font-bold text-[#17372C] border-2 border-[#315C4B]"
     disabled={ayah === 1 || busy}
     onClick={() => navigate(ayah - 1)}
     aria-label="Previous ayah"
@@ -139,7 +140,7 @@ async function save() {
   </label>
 
   <button
-    className="quran-btn-secondary"
+   className="quran-btn-secondary flex h-16 w-16 items-center justify-center text-3xl font-bold text-[#17372C] border-2 border-[#315C4B]"
     disabled={ayah === verses.length || busy}
     onClick={() => navigate(ayah + 1)}
     aria-label="Next ayah"
@@ -147,6 +148,7 @@ async function save() {
     →
   </button>
 </div>
+<div className="flex items-center justify-between gap-4">
      {ayah === verses.length ? (
   <button
     type="button"
@@ -166,7 +168,7 @@ async function save() {
     {busy ? "Please wait..." : "Pause & Continue Later"}
   </button>
 )}
-  <div className="flex justify-end">
+
   <Link
     href={`/reflections?verse=${verse.key}`}
     className="quran-btn-secondary"
