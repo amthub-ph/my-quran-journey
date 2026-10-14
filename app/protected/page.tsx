@@ -17,7 +17,7 @@ export default async function ProtectedPage() {
   const [
     { data: profile, error: profileError },
     { data: progress, error: progressError },
-    { count: bookmarkCount, error: bookmarkError },
+    { count: reflectionCount, error: reflectionError },
   ] = await Promise.all([
     db
       .from("profiles")
@@ -31,10 +31,10 @@ export default async function ProtectedPage() {
       .eq("user_id", user.id)
       .maybeSingle(),
 
-    db
-      .from("journey_bookmarks")
-      .select("verse_key", { count: "exact", head: true })
-      .eq("user_id", user.id),
+   db
+  .from("journey_reflections")
+  .select("id", { count: "exact", head: true })
+  .eq("user_id", user.id),
   ]);
 
   if (!profile && !profileError) redirect("/onboarding");
@@ -137,9 +137,9 @@ export default async function ProtectedPage() {
           </div>
 
           <div className="rounded-2xl border bg-white p-5">
-            <p className="text-sm text-gray-500">Bookmarks</p>
+           <p className="text-sm text-gray-500">Reflections</p>
             <p className="mt-2 text-2xl font-semibold text-[#315C4B]">
-              {bookmarkError ? "—" : bookmarkCount || 0}
+             {reflectionError ? "—" : reflectionCount || 0}
             </p>
           </div>
 
@@ -187,13 +187,13 @@ export default async function ProtectedPage() {
             </Link>
 
             <Link
-              href="/bookmarks"
+              href="/reflections"
               className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
             >
               <div className="mb-4 text-2xl">🔖</div>
-              <h3 className="font-semibold text-[#17372C]">Bookmarks</h3>
+              <h3 className="font-semibold text-[#17372C]">Reflections</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Saved ayat and reflections
+               Write and revisit your Qur’an reflections
               </p>
             </Link>
 
