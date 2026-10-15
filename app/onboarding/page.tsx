@@ -78,8 +78,8 @@ const { t, language, changeLanguage, busy: changingLanguage } = useI18n();
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder={t("Fatima")}
-                className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 outline-none focus:border-[var(--primary)]"
+                placeholder={t("Your name")}
+                className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 outline-none placeholder:text-gray-400 focus:border-[var(--primary)]"
               />
             </div>
 
