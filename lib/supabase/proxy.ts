@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
 export async function updateSession(request: NextRequest) {
-  if (["/sw.js", "/manifest.webmanifest", "/offline.html"].includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith("/icons/")) return NextResponse.next();
+  if (["/robots.txt", "/sitemap.xml", "/sw.js", "/manifest.webmanifest", "/offline.html"].includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith("/icons/")) return NextResponse.next();
   let supabaseResponse = NextResponse.next({
     request,
   });

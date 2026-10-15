@@ -1,3 +1,4 @@
+import { siteUrl, siteName, siteDescription } from "@/lib/seo";
 import type { Metadata } from "next";
 import { Inter, Noto_Naskh_Arabic } from "next/font/google";
 import { ThemeProvider } from "next-themes";
@@ -7,10 +8,6 @@ import { getI18n } from "@/lib/i18n/server";
 import { LanguageProvider, LanguageSwitcher } from "@/components/language-provider";
 import type { Viewport } from "next";
 export const viewport: Viewport = { themeColor: "#315C4B" };
-
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,13 +22,16 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(defaultUrl),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "My Qur’an Journey",
     template: "%s | My Qur’an Journey",
   },
   description:
     "A personal Qur’an reading companion for progress tracking, bookmarks, goals, reminders, and daily reading.",
+  robots: { index: false, follow: false },
+  openGraph: { type: "website", siteName, title: siteName, description: siteDescription },
+  twitter: { card: "summary_large_image", title: siteName, description: siteDescription },
   applicationName: "My Qur’an Journey",
   appleWebApp: { capable: true, title: "Qur’an Journey", statusBarStyle: "default" },
   icons: { apple: "/icons/icon-192.png" },

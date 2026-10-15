@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { siteUrl, siteName, siteDescription, publicIndexing } from "@/lib/seo";
 import { getI18n } from "@/lib/i18n/server";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -5,11 +7,26 @@ import { AuthButton } from "@/components/auth-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { hasEnvVars } from "@/lib/utils";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const { language } = await getI18n();
+  const title = language === "ar" ? "رحلتي مع القرآن | قراءة القرآن والاستماع وتتبع التقدم" : "My Qur’an Journey | Read Quran, Listen & Track Your Progress";
+  const description = language === "ar" ? "اقرأ القرآن بالعربية أو ترجمات معانيه بالإنجليزية والتاغالوغية. استمع للتلاوة واحفظ موضعك وتابع تقدمك واضبط تذكيرات القراءة اليومية." : siteDescription;
+  return {
+    title: { absolute: title }, description,
+    alternates: { canonical: siteUrl + "/" },
+    robots: { index: publicIndexing, follow: publicIndexing },
+    openGraph: { type: "website", url: siteUrl + "/", siteName, title, description, locale: language === "ar" ? "ar_AR" : "en_US" },
+    twitter: { card: "summary_large_image", title, description },
+    verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
+  };
+}
+
 export default async function Home() {
 const { t } = await getI18n();
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: siteName, url: siteUrl + "/", description: siteDescription, inLanguage: ["en", "ar"] }).replace(/</g, "\\u003c") }} />
       {/* HEADER */}
       <header className="border-b border-[var(--border)] bg-white/90">
         <div className="quran-container flex min-h-16 items-center justify-between gap-4">
