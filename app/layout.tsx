@@ -3,6 +3,8 @@ import { Inter, Noto_Naskh_Arabic } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { Pwa } from "@/components/pwa";
+import { getI18n } from "@/lib/i18n/server";
+import { LanguageProvider, LanguageSwitcher } from "@/components/language-provider";
 import type { Viewport } from "next";
 export const viewport: Viewport = { themeColor: "#315C4B" };
 
@@ -36,13 +38,14 @@ export const metadata: Metadata = {
   other: { google: "notranslate" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { language } = await getI18n();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={language} dir={language === "ar" ? "rtl" : "ltr"} suppressHydrationWarning>
       <body className={`${inter.variable} ${notoNaskhArabic.variable}`}>
         <ThemeProvider
           attribute="class"
@@ -50,8 +53,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Pwa />
+          <LanguageProvider initialLanguage={language}>
+            <LanguageSwitcher />
+            {children}
+            <Pwa />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
