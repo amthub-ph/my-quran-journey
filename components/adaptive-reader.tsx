@@ -22,6 +22,7 @@ export function Reader({ surah, initialAyah, verses, initialLanguage, databaseWa
   const [status, setStatus] = useState(""), [translation, setTranslation] = useState<ChapterTranslation | null>(null);
   const [translationError, setTranslationError] = useState(""), [retry, setRetry] = useState(0), [lastPage, setLastPage] = useState(false);
   const [visiblePage, setVisiblePage] = useState<ReadingPage | null>(null);
+  const [activeAyah, setActiveAyah] = useState<string | null>(null);
   const [audioStop, setAudioStop] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null), saveLock = useRef(false);
   const cache = useRef(new Map<string, ChapterTranslation>());
@@ -93,27 +94,26 @@ export function Reader({ surah, initialAyah, verses, initialLanguage, databaseWa
     {databaseWarning && <p role="alert" className="journey-warning">{t("Database setup is needed before your progress can be saved.")}</p>}
     <section className="quran-card p-4 sm:p-8 space-y-6">
       <div className="reader-toolbar">
-        <label htmlFor="reading-view">{t("Reading view")}<select id="reading-view" className="journey-input mt-1" value={view} disabled={!preferencesReady || busy} onChange={event => changePreferences({ ...preferences, view: event.target.value === "book" ? "book" : "ayah" })}>
+        <label htmlFor="reading-view"><span className="reader-control-label">{t("Reading view")}</span><select id="reading-view" className="journey-input mt-1" value={view} disabled={!preferencesReady || busy} onChange={event => changePreferences({ ...preferences, view: event.target.value === "book" ? "book" : "ayah" })}>
           <option value="ayah">{t("One ayah")}</option><option value="book">{t("Book view")}</option>
         </select></label>
-        <label htmlFor="reading-language">{t("Reading language")}<select id="reading-language" className="journey-input mt-1" value={language} disabled={!preferencesReady || busy} onChange={event => { if (isReadingLanguage(event.target.value)) changePreferences({ ...preferences, language: event.target.value }); }}>
+        <label htmlFor="reading-language"><span className="reader-control-label">{t("Reading language")}</span><select id="reading-language" className="journey-input mt-1" value={language} disabled={!preferencesReady || busy} onChange={event => { if (isReadingLanguage(event.target.value)) changePreferences({ ...preferences, language: event.target.value }); }}>
           <option value="arabic">{t("Arabic")}</option><option value="english">{t("English")}</option><option value="tagalog">{t("Tagalog")}</option>
         </select></label>
-        <label htmlFor="reading-size">{t("Text size")} <output htmlFor="reading-size"><bdi>{scale}%</bdi></output>
+        <label htmlFor="reading-size"><span className="reader-control-label">{t("Text size")}</span> <output htmlFor="reading-size"><bdi>{scale}%</bdi></output>
           <input id="reading-size" className="reader-font-slider" type="range" min="80" max="160" step="10" value={scale} disabled={!preferencesReady || busy} onChange={event => changePreferences({ ...preferences, scale: Number(event.target.value) })} />
         </label>
       </div>
       <div>
-        <div className="flex flex-wrap justify-between gap-3 mb-2"><p>{t("Current position ·")} <bdi dir="ltr">{current.key}</bdi></p><p><bdi>{percent}%</bdi></p></div>
+        <div className="flex flex-wrap justify-between gap-3 mb-2"><p>{uiLanguage === "ar" ? "تقدم القراءة ·" : "Reading progress ·"} <bdi dir="ltr">{current.key}</bdi></p><p><bdi>{percent}%</bdi></p></div>
         <progress aria-label={t("Position within this surah")} max={verses.length} value={ayah} className="w-full" />
-        <p className="text-xs text-[var(--muted)]">{t("Progress follows your selected ayah. Displaying a page does not mark every ayah as read.")}</p>
       </div>
       {!ready && !translationError && <p role="status">{t("Loading reading text…")}</p>}
       {!ready && translationError && <div role="status" className="journey-warning space-y-3">
         <p>{translationError === "sign_in" ? t("Please sign in again.") : t("This translation could not be loaded. Retry or choose another reading language.")}</p>
         <button type="button" className="quran-btn-secondary" onClick={() => { setTranslationError(""); setRetry(value => value + 1); }}>{t("Retry translation")}</button>
       </div>}
-      {ready && view === "book" && <BookPage verses={readingVerses} language={language} fontSize={fontSize} ayah={ayah} busy={busy} onNavigate={next => void navigate(next)} onLastPage={setLastPage} onPageChange={setVisiblePage} />}
+      {ready && view === "book" && <BookPage verses={readingVerses} language={language} fontSize={fontSize} ayah={ayah} busy={busy} onNavigate={next => void navigate(next)} onLastPage={setLastPage} onPageChange={setVisiblePage} activeAyah={activeAyah} />}
       {ready && view === "ayah" && <p className={`reader-single-text ${language === "arabic" ? "arabic-text" : ""}`} style={{ fontSize }} lang={textLanguage} dir={language === "arabic" ? "rtl" : "ltr"} translate="no">{selectedText?.text}</p>}
       {language === "arabic" ? <p className="text-xs">{t("Arabic:")} <a className="underline" href="https://tanzil.net" target="_blank" rel="noreferrer">{t("Tanzil Project")}</a> {t("· Uthmani, Ḥafṣ ʿan ʿĀṣim · Version 1.1. Text preserved unchanged.")}</p>
         : currentTranslation && <div className="space-y-2 text-xs">
@@ -130,7 +130,7 @@ export function Reader({ surah, initialAyah, verses, initialLanguage, databaseWa
         {view === "ayah" && <button type="button" className="quran-btn-secondary" disabled={ayah === verses.length || busy} onClick={() => void navigate(ayah + 1)}>{t("Next ayah")}</button>}
       </div>
       {view === "book" && <p className="text-sm text-[var(--muted)]">{uiLanguage === "ar" ? "شغّل تلاوة الصفحة للاستماع إلى جميع آياتها بالتتابع. عند الانتقال إلى الصفحة التالية، يُحفظ تقدمك تلقائيًا." : "Play the page to hear every displayed ayah in order. Next page automatically updates and saves your progress."}</p>}
-      <Recitation verseKey={current.key} audioRef={audioRef} pageKeys={view === "book" ? (ready && visiblePage ? verses.slice(visiblePage.start - 1, visiblePage.end).map(verse => verse.key) : []) : undefined} stopToken={`${audioStop}:${language}:${scale}:${view}`} />
+      <Recitation onActiveAyah={setActiveAyah} verseKey={current.key} audioRef={audioRef} pageKeys={view === "book" ? (ready && visiblePage ? verses.slice(visiblePage.start - 1, visiblePage.end).map(verse => verse.key) : []) : undefined} stopToken={`${audioStop}:${language}:${scale}:${view}`} />
       {language !== "arabic" && <p className="text-xs text-[var(--muted)]">{t("Recitation audio remains in Arabic.")}</p>}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button type="button" className="quran-btn-primary" disabled={busy} onClick={() => void save()}>{busy ? t("Please wait...") : t("Pause & Continue Later")}</button>

@@ -6,7 +6,7 @@ import { isReciterId, reciters, type ReciterId } from "@/lib/reciters";
 import { PageRecitation } from "./page-recitation";
 
 const storageKey = "my-quran-journey.reciter";
-export function Recitation({ verseKey, audioRef, pageKeys, stopToken }: { verseKey: string; audioRef: RefObject<HTMLAudioElement | null>; pageKeys?: string[]; stopToken?: string }) {
+export function Recitation({ verseKey, audioRef, pageKeys, stopToken, onActiveAyah }: { verseKey: string; audioRef: RefObject<HTMLAudioElement | null>; pageKeys?: string[]; stopToken?: string; onActiveAyah?: (key: string | null) => void }) {
   const { language } = useI18n();
   const ar = language === "ar";
   const pageMode = pageKeys !== undefined;
@@ -41,7 +41,7 @@ export function Recitation({ verseKey, audioRef, pageKeys, stopToken }: { verseK
         try { localStorage.setItem(storageKey, event.target.value); } catch { /* Selection still works for this session. */ }
       }}>{reciters.map(item => <option key={item.id} value={item.id}>{ar ? item.ar : item.en}</option>)}</select>
     </label>
-    {pageKeys !== undefined && ready && <PageRecitation key={`${pageKeys.join(",")}:${reciter}:${stopToken}`} keys={pageKeys} reciter={reciter} audioRef={audioRef} />}
+    {pageKeys !== undefined && ready && <PageRecitation key={`${pageKeys.join(",")}:${reciter}:${stopToken}`} keys={pageKeys} reciter={reciter} audioRef={audioRef} onActiveAyah={onActiveAyah} />}
     {pageKeys === undefined && !current && !error && <p role="status">{ar ? "جارٍ تحميل التلاوة…" : "Loading recitation…"}</p>}
     {pageKeys === undefined && current && <audio key={`${verseKey}:${reciter}:${retry}`} ref={audioRef} controls preload="none" src={current.audio} className="w-full"
       aria-label={ar ? "تلاوة الآية الحالية" : "Recitation of the current ayah"} onError={() => setError("audio_unavailable")}>

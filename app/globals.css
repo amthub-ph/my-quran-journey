@@ -200,3 +200,9 @@ button.reader-ayah-number[aria-pressed="true"] { background: #315c4b; color: whi
   .reader-toolbar > label:last-child { grid-column: auto; }
   .reader-paper { padding: 1.5rem 2rem; }
 }
+
+/* Playback emphasis does not alter measured ayah dimensions. */
+.reader-control-label { display: inline-block; color: #244f40; background: #e8f0ec; border-radius: 6px; padding: .2rem .55rem; margin-bottom: .35rem; font-size: .875rem; font-weight: 700; }
+.reader-ayah[data-playing] { background: #e0eee5; border-radius: 6px; box-shadow: inset 4px 0 0 #315c4b; }
+.reader-page-text[dir="rtl"] .reader-ayah[data-playing] { box-shadow: inset -4px 0 0 #315c4b; }
+.reader-ayah[data-playing] .reader-ayah-number { background: #315c4b; border-color: #315c4b; color: white; }

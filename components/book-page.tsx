@@ -3,8 +3,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { paginateAyahs, type ReadingPage, type ReadingVerse, type ReadingLanguage } from "@/lib/reading-layout";
 import { useI18n } from "./language-provider";
 
-export function BookPage({ verses, language, fontSize, ayah, busy, onNavigate, onLastPage, onPageChange }: {
-  verses: ReadingVerse[]; language: ReadingLanguage; fontSize: number; ayah: number; busy: boolean;
+export function BookPage({ verses, language, fontSize, ayah, busy, onNavigate, onLastPage, onPageChange, activeAyah }: {
+  activeAyah?: string | null; verses: ReadingVerse[]; language: ReadingLanguage; fontSize: number; ayah: number; busy: boolean;
   onNavigate: (ayah: number) => void; onLastPage: (last: boolean) => void; onPageChange: (page: ReadingPage | null) => void;
 }) {
   const { t, language: uiLanguage } = useI18n();
@@ -58,7 +58,7 @@ export function BookPage({ verses, language, fontSize, ayah, busy, onNavigate, o
         {ready && page && <div className={`reader-page-text ${language === "arabic" ? "arabic-text" : ""}`} style={{ fontSize }} lang={textLanguage} dir={language === "arabic" ? "rtl" : "ltr"} translate="no">
           {verses.slice(page.start - 1, page.end).map((verse, index) => {
             const number = page.start + index;
-            return <p key={verse.key} className="reader-ayah" data-current={number === ayah || undefined}>
+            return <p key={verse.key} className="reader-ayah" data-playing={verse.key === activeAyah || undefined} aria-current={verse.key === activeAyah ? "true" : undefined}>
               <span>{verse.text}</span>{" "}<button type="button" className="reader-ayah-number" disabled={busy} aria-pressed={number === ayah}
                 aria-label={`${t("Select ayah")} ${numeral(number)}`} onClick={() => onNavigate(number)}>{numeral(number)}</button>
             </p>;
