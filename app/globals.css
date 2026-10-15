@@ -176,3 +176,27 @@ textarea:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Adaptive reader pages use measured whole ayahs, never text truncation. */
+.reader-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: end; }
+.reader-toolbar > label:last-child { grid-column: 1 / -1; }
+.reader-font-slider { display: block; width: 100%; min-height: 44px; accent-color: var(--primary); cursor: pointer; }
+.reader-paper { padding: 1rem; background: #fffdf7; border: 1px solid #ded6be; border-radius: 8px 18px 18px 8px; box-shadow: inset 5px 0 0 #f0ebdc, 0 8px 24px #17372c08; scroll-margin-top: 1rem; }
+html[dir="rtl"] .reader-paper { border-radius: 18px 8px 8px 18px; box-shadow: inset -5px 0 0 #f0ebdc, 0 8px 24px #17372c08; }
+.reader-paper-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; font-size: .875rem; color: var(--muted); border-bottom: 1px solid #e5ddc9; padding-bottom: .75rem; margin-bottom: 1.25rem; }
+.reader-page-area { position: relative; }
+.reader-page-text { line-height: 1.9; overflow-wrap: anywhere; }
+.reader-page-text .reader-ayah { margin: 0; padding: 0; }
+.reader-page-text .reader-ayah + .reader-ayah { margin-top: 14px; }
+.reader-ayah[data-current] { background: #e8f0ec80; border-radius: 4px; }
+.reader-ayah-number { display: inline-flex; align-items: center; justify-content: center; min-width: 2em; height: 2em; padding: 0 .3em; border: 1px solid #b7a878; border-radius: 50%; background: transparent; color: #315c4b; font-family: var(--font-inter), sans-serif; font-size: .55em; line-height: 1; vertical-align: middle; white-space: nowrap; }
+button.reader-ayah-number { cursor: pointer; }
+button.reader-ayah-number[aria-pressed="true"] { background: #315c4b; color: white; border-color: #315c4b; }
+.reader-measure { position: absolute; inset-inline: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; }
+.reader-height-guide { position: absolute; width: 1px; height: clamp(280px, 65vh, 900px); height: clamp(280px, 65svh, 900px); visibility: hidden; pointer-events: none; }
+.reader-single-text { padding-block: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.9; }
+@media (min-width: 640px) {
+  .reader-toolbar { grid-template-columns: 1fr 1fr 1fr; }
+  .reader-toolbar > label:last-child { grid-column: auto; }
+  .reader-paper { padding: 1.5rem 2rem; }
+}

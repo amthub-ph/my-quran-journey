@@ -3,10 +3,13 @@ import { useEffect, useState, type RefObject } from "react";
 import { useI18n } from "./language-provider";
 import { isReciterId, reciters, type ReciterId } from "@/lib/reciters";
 
+import { PageRecitation } from "./page-recitation";
+
 const storageKey = "my-quran-journey.reciter";
-export function Recitation({ verseKey, audioRef }: { verseKey: string; audioRef: RefObject<HTMLAudioElement | null> }) {
+export function Recitation({ verseKey, audioRef, pageKeys, stopToken }: { verseKey: string; audioRef: RefObject<HTMLAudioElement | null>; pageKeys?: string[]; stopToken?: string }) {
   const { language } = useI18n();
   const ar = language === "ar";
+  const pageMode = pageKeys !== undefined;
   const [reciter, setReciter] = useState<ReciterId>("ar.alafasy");
   const [ready, setReady] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -17,7 +20,7 @@ export function Recitation({ verseKey, audioRef }: { verseKey: string; audioRef:
     setReady(true);
   }, []);
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || pageMode) return;
     const abort = new AbortController();
     setResult(null); setError("");
     fetch(`/api/recitation/${verseKey}?reciter=${encodeURIComponent(reciter)}`, { signal: abort.signal })
@@ -28,7 +31,7 @@ export function Recitation({ verseKey, audioRef }: { verseKey: string; audioRef:
         if (!abort.signal.aborted) setResult(data);
       }).catch(reason => { if (!abort.signal.aborted) setError(reason.message === "sign_in" ? "sign_in" : "audio_unavailable"); });
     return () => abort.abort();
-  }, [verseKey, reciter, retry, ready]);
+  }, [verseKey, reciter, retry, ready, pageMode]);
   const current = result?.key === verseKey && result?.reciter === reciter ? result : null;
   return <section aria-label={ar ? "التلاوة" : "Recitation"} dir={ar ? "rtl" : "ltr"} className="space-y-3">
     <label className="block" htmlFor="reciter">{ar ? "القارئ" : "Reciter"}
@@ -38,12 +41,13 @@ export function Recitation({ verseKey, audioRef }: { verseKey: string; audioRef:
         try { localStorage.setItem(storageKey, event.target.value); } catch { /* Selection still works for this session. */ }
       }}>{reciters.map(item => <option key={item.id} value={item.id}>{ar ? item.ar : item.en}</option>)}</select>
     </label>
-    {!current && !error && <p role="status">{ar ? "جارٍ تحميل التلاوة…" : "Loading recitation…"}</p>}
-    {current && <audio key={`${verseKey}:${reciter}:${retry}`} ref={audioRef} controls preload="none" src={current.audio} className="w-full"
+    {pageKeys !== undefined && ready && <PageRecitation key={`${pageKeys.join(",")}:${reciter}:${stopToken}`} keys={pageKeys} reciter={reciter} audioRef={audioRef} />}
+    {pageKeys === undefined && !current && !error && <p role="status">{ar ? "جارٍ تحميل التلاوة…" : "Loading recitation…"}</p>}
+    {pageKeys === undefined && current && <audio key={`${verseKey}:${reciter}:${retry}`} ref={audioRef} controls preload="none" src={current.audio} className="w-full"
       aria-label={ar ? "تلاوة الآية الحالية" : "Recitation of the current ayah"} onError={() => setError("audio_unavailable")}>
       {ar ? "متصفحك لا يدعم تشغيل الصوت." : "Your browser does not support audio playback."}
     </audio>}
-    {error && <div role="status" className="space-y-2"><p>{error === "sign_in" ? (ar ? "يرجى تسجيل الدخول مجددًا." : "Please sign in again.") :
+    {pageKeys === undefined && error && <div role="status" className="space-y-2"><p>{error === "sign_in" ? (ar ? "يرجى تسجيل الدخول مجددًا." : "Please sign in again.") :
       (ar ? "تعذّر تشغيل التلاوة. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة." : "Recitation could not be played. Check your connection and retry.")}</p>
       <button type="button" className="quran-btn-secondary" onClick={() => { audioRef.current?.pause(); setResult(null); setError(""); setRetry(value => value + 1); }}>{ar ? "إعادة تحميل التلاوة" : "Retry recitation"}</button></div>}
     <p className="text-xs text-[var(--muted)]">{reciter === "Yasser_Ad-Dussary_128kbps"

@@ -42,7 +42,7 @@ async function getToken() {
   })();
   try { return await pendingToken; } finally { pendingToken = undefined; }
 }
-async function qf(endpoint: string, retry = true): Promise<Record<string, unknown>> {
+export async function qf(endpoint: string, retry = true): Promise<Record<string, unknown>> {
   const access = await getToken();
   const response = await fetch(`${gateway}/content/api/v4/${endpoint}`, {
     headers: { "x-auth-token": access, "x-client-id": process.env.QF_CLIENT_ID! },
