@@ -1,15 +1,18 @@
 "use client";
+import { useI18n } from "@/components/language-provider";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import { createClient } from "@/lib/supabase/client";
 
 export default function OnboardingPage() {
-  const router = useRouter();
+const { t, language, changeLanguage, busy: changingLanguage } = useI18n();
+
+ 
   const supabase = createClient();
 
   const [fullName, setFullName] = useState("");
-  const [interfaceLanguage, setInterfaceLanguage] = useState("english");
+  const interfaceLanguage = language === "ar" ? "arabic" : "english";
   const [quranDisplay, setQuranDisplay] = useState("arabic_english");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -42,8 +45,7 @@ export default function OnboardingPage() {
       return;
     }
 
-    router.push("/protected");
-    router.refresh();
+   window.location.href = "/protected";
   }
 
   return (
@@ -56,12 +58,10 @@ export default function OnboardingPage() {
             </p>
 
             <h1 className="mt-4 text-3xl font-semibold">
-              Welcome to My Qur’an Journey
-            </h1>
+              {t("Welcome to My Qur’an Journey")}{" "}</h1>
 
             <p className="mt-3 text-[var(--muted)]">
-              Set up your personal reading preferences before you begin.
-            </p>
+              {t("Set up your personal reading preferences before you begin.")}{" "}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -70,8 +70,7 @@ export default function OnboardingPage() {
                 htmlFor="fullName"
                 className="mb-2 block text-sm font-medium"
               >
-                What should we call you?
-              </label>
+                {t("What should we call you?")}{" "}</label>
 
               <input
                 id="fullName"
@@ -79,7 +78,7 @@ export default function OnboardingPage() {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Fatima"
+                placeholder={t("Fatima")}
                 className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4 outline-none focus:border-[var(--primary)]"
               />
             </div>
@@ -89,18 +88,17 @@ export default function OnboardingPage() {
                 htmlFor="interfaceLanguage"
                 className="mb-2 block text-sm font-medium"
               >
-                Interface language
-              </label>
+                {t("Interface language")}{" "}</label>
 
               <select
                 id="interfaceLanguage"
                 value={interfaceLanguage}
-                onChange={(e) => setInterfaceLanguage(e.target.value)}
+                disabled={changingLanguage}
+                onChange={(e) => void changeLanguage(e.target.value === "arabic" ? "ar" : "en")}
                 className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4"
               >
-                <option value="english">English</option>
+                <option value="english">{t("English")}</option>
                 <option value="arabic">العربية</option>
-                <option value="tagalog">Tagalog</option>
               </select>
             </div>
 
@@ -109,8 +107,7 @@ export default function OnboardingPage() {
                 htmlFor="quranDisplay"
                 className="mb-2 block text-sm font-medium"
               >
-                Qur’an display preference
-              </label>
+                {t("Qur’an display preference")}{" "}</label>
 
               <select
                 id="quranDisplay"
@@ -118,15 +115,15 @@ export default function OnboardingPage() {
                 onChange={(e) => setQuranDisplay(e.target.value)}
                 className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-white px-4"
               >
-                <option value="arabic">Arabic only</option>
-                <option value="arabic_english">Arabic + English</option>
-                <option value="arabic_tagalog">Arabic + Tagalog</option>
+                <option value="arabic">{t("Arabic only")}</option>
+                <option value="arabic_english">{t("Arabic + English")}</option>
+                <option value="arabic_tagalog">{t("Arabic + Tagalog")}</option>
               </select>
             </div>
 
             {error && (
               <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                {error}
+                {t(error || "")}
               </div>
             )}
 
@@ -135,7 +132,7 @@ export default function OnboardingPage() {
               disabled={saving}
               className="quran-btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Start My Journey"}
+              {saving ? t("Saving...") : t("Start My Journey")}
             </button>
           </form>
         </div>
