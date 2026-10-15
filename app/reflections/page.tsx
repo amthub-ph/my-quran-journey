@@ -1,3 +1,4 @@
+import { getI18n } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { JourneyShell } from "@/components/journey-shell";
@@ -7,6 +8,8 @@ export default async function ReflectionsPage({
 }: {
   searchParams: Promise<{ verse?: string }>;
 }) {
+const { t } = await getI18n();
+
   const { verse } = await searchParams;
   const db = await createClient();
   const {
@@ -24,11 +27,9 @@ export default async function ReflectionsPage({
   <JourneyShell>
       <section className="quran-card p-5 sm:p-6 space-y-4">
         <div>
-          <h2 className="text-xl font-semibold">My Qur'an Reflections</h2>
+          <h2 className="text-xl font-semibold">{t("My Qur'an Reflections")}</h2>
           <p className="text-sm text-[var(--muted)] mt-1">
-            A private space for your thoughts, lessons, and understanding while
-            reading the Qur'an.
-          </p>
+            {t("A private space for your thoughts, lessons, and understanding while reading the Qur'an.")}{" "}</p>
         </div>
 
     <ReflectionList reflections={reflections || []} verseKey={verse} />

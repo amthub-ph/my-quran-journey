@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language-provider";
 
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -20,6 +21,8 @@ export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+const { t } = useI18n();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -50,7 +53,7 @@ export function SignUpForm({
       if (error) throw error;
      window.location.href = `/auth/verify-otp?email=${encodeURIComponent(email)}`;
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      setError(error instanceof Error ? error.message : t("An error occurred"));
     } finally {
       setIsLoading(false);
     }
@@ -60,14 +63,14 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+          <CardTitle className="text-2xl">{t("Sign up")}</CardTitle>
+          <CardDescription>{t("Create a new account")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("Email")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -79,7 +82,7 @@ export function SignUpForm({
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t("Password")}</Label>
                 </div>
                 <Input
                   id="password"
@@ -91,7 +94,7 @@ export function SignUpForm({
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="repeat-password">Repeat Password</Label>
+                  <Label htmlFor="repeat-password">{t("Repeat Password")}</Label>
                 </div>
                 <Input
                   id="repeat-password"
@@ -101,16 +104,15 @@ export function SignUpForm({
                   onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-red-500">{t(error || "")}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating an account..." : "Sign up"}
+                {isLoading ? t("Creating an account...") : t("Sign up")}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
+              {t("Already have an account?")}{" "}
               <Link href="/auth/login" className="underline underline-offset-4">
-                Login
-              </Link>
+                {t("Login")}{" "}</Link>
             </div>
           </form>
         </CardContent>
@@ -118,3 +120,4 @@ export function SignUpForm({
     </div>
   );
 }
+

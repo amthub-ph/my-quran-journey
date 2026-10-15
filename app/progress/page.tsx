@@ -1,3 +1,4 @@
+import { getI18n } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -5,6 +6,8 @@ import { JourneyShell } from "@/components/journey-shell";
 import { parseVerseKey, positionPercent } from "@/lib/quran";
 
 export default async function ProgressPage() {
+const { t, language } = await getI18n();
+
   const db = await createClient();
 
   const {
@@ -51,23 +54,21 @@ export default async function ProgressPage() {
 );
 
   return (
-    <JourneyShell title="Reading progress">
+    <JourneyShell title={t("Reading progress")}>
       <div className="mx-auto max-w-3xl space-y-8">
 
         {error && (
           <div className="journey-warning" role="alert">
-            Saved progress could not be loaded. Please try again.
-          </div>
+            {t("Saved progress could not be loaded. Please try again.")}{" "}</div>
         )}
 
         {latest ? (
           <section className="quran-card p-6">
             <p className="text-sm text-[var(--muted)]">
-              Continue where you left off
-            </p>
+              {t("Continue where you left off")}{" "}</p>
 
             <h2 className="mt-2 text-2xl font-semibold">
-              {latest.position.chapter.name_simple}
+              {language === "ar" ? latest.position.chapter.name_arabic : latest.position.chapter.name_simple}
             </h2>
 
             <p
@@ -79,7 +80,7 @@ export default async function ProgressPage() {
             </p>
 
             <p className="mt-4">
-              Ayah {latest.position.ayah} of{" "}
+              {t("Ayah")}{" "}{latest.position.ayah} {t("of")}{" "}
               {latest.position.chapter.verses_count}
             </p>
 
@@ -87,44 +88,38 @@ export default async function ProgressPage() {
               className="w-full my-3"
               max={latest.position.chapter.verses_count}
               value={latest.position.ayah}
-              aria-label="Latest reading progress"
+              aria-label={t("Latest reading progress")}
             />
 
             <p className="text-sm text-[var(--muted)]">
-              {positionPercent(latest.verse_key)}% through this Surah
-            </p>
+              {positionPercent(latest.verse_key)}{t("% through this Surah")}{" "}</p>
 
             <Link
               className="quran-btn-primary mt-5 inline-block"
               href={`/quran/${latest.position.surah}?ayah=${latest.position.ayah}`}
             >
-              Continue Reading
-            </Link>
+              {t("Continue Reading")}{" "}</Link>
           </section>
         ) : (
           <section className="quran-card p-6">
             <h2 className="text-2xl font-semibold">
-              Begin your journey
-            </h2>
+              {t("Begin your journey")}{" "}</h2>
 
             <p className="mt-4">
-              No reading progress has been saved yet.
-            </p>
+              {t("No reading progress has been saved yet.")}{" "}</p>
 
             <Link
               className="quran-btn-primary mt-5 inline-block"
               href="/quran"
             >
-              Choose a Surah
-            </Link>
+              {t("Choose a Surah")}{" "}</Link>
           </section>
         )}
 
         {positions.length > 0 && (
           <section>
             <h2 className="mb-4 text-2xl font-semibold">
-              Your Surahs
-            </h2>
+              {t("Your Surahs")}{" "}</h2>
 
             <div className="space-y-4">
               {positions.map((item) => {
@@ -139,7 +134,7 @@ export default async function ProgressPage() {
       >
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span className="font-semibold">
-            {position.chapter.name_simple}
+            {language === "ar" ? position.chapter.name_arabic : position.chapter.name_simple}
           </span>
 
           <span
@@ -151,13 +146,11 @@ export default async function ProgressPage() {
           </span>
 
           <span className="text-sm text-[var(--muted)]">
-            {position.chapter.verses_count} Ayat
-          </span>
+            {position.chapter.verses_count} {t("Ayat")}{" "}</span>
         </div>
 
         <span className="shrink-0 font-semibold text-green-700">
-          ✓ Completed
-        </span>
+          {t("✓ Completed")}{" "}</span>
       </div>
     );
   }
@@ -170,7 +163,7 @@ export default async function ProgressPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h3 className="text-xl font-semibold">
-            {position.chapter.name_simple}
+            {language === "ar" ? position.chapter.name_arabic : position.chapter.name_simple}
           </h3>
 
           <p
@@ -182,7 +175,7 @@ export default async function ProgressPage() {
           </p>
 
           <p className="mt-3">
-            Ayah {position.ayah} of{" "}
+            {t("Ayah")}{" "}{position.ayah} {t("of")}{" "}
             {position.chapter.verses_count}
           </p>
         </div>
@@ -196,15 +189,14 @@ export default async function ProgressPage() {
         className="w-full my-3"
         max={position.chapter.verses_count}
         value={position.ayah}
-        aria-label={`${position.chapter.name_simple} reading progress`}
+        aria-label={`${language === "ar" ? position.chapter.name_arabic : position.chapter.name_simple} ${t("Reading progress")}`}
       />
 
       <Link
         className="quran-btn-primary inline-block"
         href={`/quran/${position.surah}?ayah=${position.ayah}`}
       >
-        Continue Reading
-      </Link>
+        {t("Continue Reading")}{" "}</Link>
     </div>
   );
 })}

@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language-provider";
 
 import { useEffect, useState } from "react";
 
@@ -8,6 +9,8 @@ type InstallPrompt = Event & {
 };
 
 export function Pwa() {
+const { t } = useI18n();
+
   const [installPrompt, setInstallPrompt] = useState<InstallPrompt | null>(null);
   const [message, setMessage] = useState("");
   const [notificationPermission, setNotificationPermission] =
@@ -25,7 +28,7 @@ export function Pwa() {
         .register("/sw.js")
         .catch(() =>
           setMessage(
-            "App background support could not start. Refresh and try again."
+            t("App background support could not start. Refresh and try again.")
           )
         );
     }
@@ -40,7 +43,7 @@ export function Pwa() {
     return () => {
       window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
     };
-  }, []);
+  }, [t]);
 
   async function installApp() {
     if (!installPrompt) return;
@@ -78,11 +81,11 @@ export function Pwa() {
       if (permission === "granted") {
         await navigator.serviceWorker.ready;
         setMessage(
-          "Notifications enabled. Next we will connect this device to your saved reminders."
+          t("Notifications enabled. Next we will connect this device to your saved reminders.")
         );
       } else if (permission === "denied") {
         setMessage(
-          "Notifications are blocked. Allow notifications for this site in your browser settings."
+          t("Notifications are blocked. Allow notifications for this site in your browser settings.")
         );
       } else {
         setMessage("Notification permission was not enabled.");
@@ -111,8 +114,8 @@ export function Pwa() {
     try {
       const registration = await navigator.serviceWorker.ready;
 
-      await registration.showNotification("Time to read the Qur'an", {
-        body: "Continue your Qur'an journey from where you left off.",
+      await registration.showNotification(t("Time to read the Qur'an"), {
+        body: t("Continue your Qur'an journey from where you left off."),
         icon: "/icons/icon-192.png",
         badge: "/icons/icon-192.png",
         tag: "quran-reminder-test",
@@ -130,7 +133,7 @@ export function Pwa() {
   return (
     <aside
       className="quran-container py-6 text-sm"
-      aria-label="App installation and notification status"
+      aria-label={t("App installation and notification status")}
     >
       <div className="flex flex-wrap gap-3">
         {installPrompt && (
@@ -139,8 +142,7 @@ export function Pwa() {
             className="quran-btn-secondary"
             onClick={installApp}
           >
-            Install App
-          </button>
+            {t("Install App")}{" "}</button>
         )}
 
         <button
@@ -149,8 +151,8 @@ export function Pwa() {
           onClick={enableNotifications}
         >
           {notificationPermission === "granted"
-            ? "Notifications Enabled"
-            : "Enable Notifications"}
+            ? t("Notifications Enabled")
+            : t("Enable Notifications")}
         </button>
 
         {notificationPermission === "granted" && (
@@ -159,20 +161,18 @@ export function Pwa() {
             className="quran-btn-secondary"
             onClick={testNotification}
           >
-            Test Notification
-          </button>
+            {t("Test Notification")}{" "}</button>
         )}
       </div>
 
       {notificationPermission === "granted" && (
         <p className="mt-3">
-          Notifications are allowed on this device.
-        </p>
+          {t("Notifications are allowed on this device.")}{" "}</p>
       )}
 
       {message && (
         <p role="status" className="journey-warning mt-3">
-          {message}
+          {t(message)}
         </p>
       )}
     </aside>

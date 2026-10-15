@@ -1,3 +1,4 @@
+import { getI18n } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -6,6 +7,8 @@ import { SavedPosition } from "@/components/saved-position";
 import { LogoutButton } from "@/components/logout-button";
 
 export default async function ProtectedPage() {
+const { t } = await getI18n();
+
   const db = await createClient();
 
   const {
@@ -40,7 +43,7 @@ export default async function ProtectedPage() {
   if (!profile && !profileError) redirect("/onboarding");
 
   const firstName =
-    profile?.full_name?.split(" ")[0] || "Reader";
+    profile?.full_name?.split(" ")[0] || t("Reader");
 
   const dailyGoal = profile?.daily_goal || 10;
 
@@ -55,19 +58,15 @@ export default async function ProtectedPage() {
 
           <div className="relative max-w-2xl">
             <p className="mb-2 text-sm font-medium tracking-wide text-[#E8D29B]">
-              MY QUR&apos;AN JOURNEY
-            </p>
+              {t("MY QUR'AN JOURNEY")}{" "}</p>
 
             <h1 className="text-3xl font-semibold leading-tight md:text-4xl">
-              Assalāmu ʿalaykum,
-              <br />
+              {t("Assalāmu ʿalaykum,")}{" "}<br />
               {firstName}
             </h1>
 
             <p className="mt-4 max-w-xl text-sm leading-6 text-white/80 md:text-base">
-              A little progress each day becomes a beautiful journey.
-              Read, reflect, and continue at your own pace.
-            </p>
+              {t("A little progress each day becomes a beautiful journey. Read, reflect, and continue at your own pace.")}{" "}</p>
           </div>
         </section>
 
@@ -78,12 +77,10 @@ export default async function ProtectedPage() {
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#B49350]">
-                  Continue your journey
-                </p>
+                  {t("Continue your journey")}{" "}</p>
 
                 <h2 className="mt-1 text-2xl font-semibold text-[#17372C]">
-                  Continue Reading
-                </h2>
+                  {t("Continue Reading")}{" "}</h2>
               </div>
 
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5EEDC] text-xl">
@@ -99,8 +96,7 @@ export default async function ProtectedPage() {
 
           <div className="rounded-[24px] bg-[#F3EEE2] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8A6D35]">
-              Today&apos;s goal
-            </p>
+              {t("Today's goal")}{" "}</p>
 
             <div className="mt-5 flex items-center gap-5">
               <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-[8px] border-[#315C4B] bg-white">
@@ -109,19 +105,16 @@ export default async function ProtectedPage() {
                     {dailyGoal}
                   </div>
                   <div className="text-[10px] uppercase text-gray-500">
-                    Ayat
-                  </div>
+                    {t("Ayat")}{" "}</div>
                 </div>
               </div>
 
               <div>
                 <h2 className="text-xl font-semibold text-[#17372C]">
-                  Daily Reading
-                </h2>
+                  {t("Daily Reading")}{" "}</h2>
 
                 <p className="mt-1 text-sm leading-5 text-gray-600">
-                  Your daily goal is {dailyGoal} ayat.
-                </p>
+                  {t("Your daily goal is")}{" "}{dailyGoal} {t("ayat.")}{" "}</p>
               </div>
             </div>
           </div>
@@ -130,24 +123,23 @@ export default async function ProtectedPage() {
         {/* STATS */}
         <section className="grid grid-cols-2 gap-4 md:grid-cols-3">
           <div className="rounded-2xl border bg-white p-5">
-            <p className="text-sm text-gray-500">Saved position</p>
+            <p className="text-sm text-gray-500">{t("Saved position")}</p>
             <p className="mt-2 text-xl font-semibold text-[#315C4B]">
-              {progress?.verse_key || "Not started"}
+              {progress?.verse_key || t("Not started")}
             </p>
           </div>
 
           <div className="rounded-2xl border bg-white p-5">
-           <p className="text-sm text-gray-500">Reflections</p>
+           <p className="text-sm text-gray-500">{t("Reflections")}</p>
             <p className="mt-2 text-2xl font-semibold text-[#315C4B]">
              {reflectionError ? "—" : reflectionCount || 0}
             </p>
           </div>
 
           <div className="col-span-2 rounded-2xl border bg-white p-5 md:col-span-1">
-            <p className="text-sm text-gray-500">Daily goal</p>
+            <p className="text-sm text-gray-500">{t("Daily goal")}</p>
             <p className="mt-2 text-2xl font-semibold text-[#315C4B]">
-              {dailyGoal} ayat
-            </p>
+              {dailyGoal} {t("ayat")}{" "}</p>
           </div>
         </section>
 
@@ -155,11 +147,9 @@ export default async function ProtectedPage() {
         <section>
           <div className="mb-4">
             <h2 className="text-xl font-semibold text-[#17372C]">
-              Quick Access
-            </h2>
+              {t("Quick Access")}{" "}</h2>
             <p className="mt-1 text-sm text-gray-500">
-              Everything you need for your Qur&apos;an journey.
-            </p>
+              {t("Everything you need for your Qur'an journey.")}{" "}</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -169,10 +159,9 @@ export default async function ProtectedPage() {
               className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
             >
               <div className="mb-4 text-2xl">📖</div>
-              <h3 className="font-semibold text-[#17372C]">Qur&apos;an</h3>
+              <h3 className="font-semibold text-[#17372C]">{t("Qur'an")}</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Browse and continue reading
-              </p>
+                {t("Browse and continue reading")}{" "}</p>
             </Link>
 
             <Link
@@ -180,10 +169,9 @@ export default async function ProtectedPage() {
               className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
             >
               <div className="mb-4 text-2xl">◔</div>
-              <h3 className="font-semibold text-[#17372C]">Progress</h3>
+              <h3 className="font-semibold text-[#17372C]">{t("Progress")}</h3>
               <p className="mt-1 text-sm text-gray-500">
-                View your saved position
-              </p>
+                {t("View your saved position")}{" "}</p>
             </Link>
 
             <Link
@@ -191,10 +179,9 @@ export default async function ProtectedPage() {
               className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
             >
               <div className="mb-4 text-2xl">🔖</div>
-              <h3 className="font-semibold text-[#17372C]">Reflections</h3>
+              <h3 className="font-semibold text-[#17372C]">{t("Reflections")}</h3>
               <p className="mt-1 text-sm text-gray-500">
-               Write and revisit your Qur’an reflections
-              </p>
+               {t("Write and revisit your Qur’an reflections")}{" "}</p>
             </Link>
 
             <Link
@@ -202,10 +189,9 @@ export default async function ProtectedPage() {
               className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
             >
               <div className="mb-4 text-2xl">◷</div>
-              <h3 className="font-semibold text-[#17372C]">Reminders</h3>
+              <h3 className="font-semibold text-[#17372C]">{t("Reminders")}</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Plan your reading time
-              </p>
+                {t("Plan your reading time")}{" "}</p>
             </Link>
 
           </div>

@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Interface direction is independent of the language of published verse text. */
+html[lang="ar"] body {
+  font-family: var(--font-arabic), "Tahoma", serif;
+  line-height: 1.8;
+}
+html[dir="rtl"] .tracking-wide,
+html[dir="rtl"] .tracking-wider,
+html[dir="rtl"] .tracking-tight,
+html[dir="rtl"] [class*="tracking-["] { letter-spacing: normal; }
+html[dir="rtl"] .text-left { text-align: right; }
+[lang="en"][dir="ltr"], [lang="tl"][dir="ltr"] { font-family: var(--font-inter), sans-serif; }
+input[type="email"], input[type="password"], input[autocomplete="one-time-code"],
+input[type="time"], input[type="datetime-local"] { direction: ltr; }
+textarea { unicode-bidi: plaintext; }
+
 .journey-input { display: block; width: 100%; min-height: 46px; border: 1px solid #dde3df; border-radius: 12px; padding: .6rem .8rem; background: white; color: #1f2933; }
 .journey-warning { padding: 1rem; border-radius: 12px; background: #e8f0ec; color: #264a3d; }
 button:disabled { opacity: .55; cursor: not-allowed; }

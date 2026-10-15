@@ -1,3 +1,4 @@
+import { getI18n } from "@/lib/i18n/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Suspense } from "react";
 
@@ -6,28 +7,31 @@ async function ErrorContent({
 }: {
   searchParams: Promise<{ error: string }>;
 }) {
+const { t } = await getI18n();
+
   const params = await searchParams;
 
   return (
     <>
       {params?.error ? (
         <p className="text-sm text-muted-foreground">
-          Code error: {params.error}
+          {t("Code error:")}{" "}{params.error}
         </p>
       ) : (
         <p className="text-sm text-muted-foreground">
-          An unspecified error occurred.
-        </p>
+          {t("An unspecified error occurred.")}{" "}</p>
       )}
     </>
   );
 }
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ error: string }>;
 }) {
+const { t } = await getI18n();
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -35,8 +39,7 @@ export default function Page({
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">
-                Sorry, something went wrong.
-              </CardTitle>
+                {t("Sorry, something went wrong.")}{" "}</CardTitle>
             </CardHeader>
             <CardContent>
               <Suspense>
@@ -49,3 +52,4 @@ export default function Page({
     </div>
   );
 }
+

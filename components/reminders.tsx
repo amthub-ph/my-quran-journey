@@ -1,6 +1,7 @@
 "use client";
+import { useI18n } from "@/components/language-provider";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type Reminder = {
@@ -26,10 +27,12 @@ const DAYS = [
 ];
 
 export function Reminders() {
+const { t, language } = useI18n();
+
   const db = useMemo(() => createClient(), []);
 
   const [items, setItems] = useState<Reminder[]>([]);
-  const [title, setTitle] = useState("Qur'an Reading Reminder");
+  const [title, setTitle] = useState(t("Qur'an Reading Reminder"));
   const [time, setTime] = useState("20:00");
   const [days, setDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
   const [message, setMessage] = useState("");
@@ -42,7 +45,7 @@ export function Reminders() {
 
   const everyDay = days.length === 7;
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     const {
       data: { user },
     } = await db.auth.getUser();
@@ -64,11 +67,11 @@ export function Reminders() {
     }
 
     setItems((data ?? []) as Reminder[]);
-  }
+  }, [db]);
 
   useEffect(() => {
     void refresh();
-  }, []);
+  }, [refresh]);
 
   function toggleDay(day: number) {
     setDays((current) =>
@@ -164,7 +167,7 @@ async function enableNotifications() {
     });
 
     if (!response.ok) {
-      throw new Error("Could not get push notification settings.");
+      throw new Error(t("Could not get push notification settings."));
     }
 
     const { publicKey } = await response.json();
@@ -183,7 +186,7 @@ async function enableNotifications() {
     });
 
     if (!saveResponse.ok) {
-      throw new Error("Could not save notification subscription.");
+      throw new Error(t("Could not save notification subscription."));
     }
 
     setMessage("Notifications enabled successfully.");
@@ -208,7 +211,7 @@ async function enableNotifications() {
     if (error) {
       setMessage(`Could not update reminder: ${error.message}`);
     } else {
-      setMessage(item.enabled ? "Reminder turned off." : "Reminder turned on.");
+      setMessage(item.enabled ? t("Reminder turned off.") : t("Reminder turned on."));
       await refresh();
     }
 
@@ -241,17 +244,17 @@ async function enableNotifications() {
     const date = new Date();
     date.setHours(hours, minutes, 0, 0);
 
-    return new Intl.DateTimeFormat(undefined, {
+    return new Intl.DateTimeFormat(language, {
       hour: "numeric",
       minute: "2-digit",
     }).format(date);
   }
 
   function formatDays(selectedDays: number[]) {
-    if (selectedDays.length === 7) return "Every day";
+    if (selectedDays.length === 7) return t("Every day");
 
     return DAYS.filter((day) => selectedDays.includes(day.value))
-      .map((day) => day.short)
+      .map((day) => t(day.short))
       .join(" · ");
   }
 
@@ -259,28 +262,26 @@ async function enableNotifications() {
     <div className="max-w-3xl space-y-6">
       <form onSubmit={saveReminder} className="quran-card p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-semibold">Set a reading reminder</h2>
+          <h2 className="text-2xl font-semibold">{t("Set a reading reminder")}</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Choose when you would like to be reminded to continue your Qur&apos;an
-            journey.
-          </p>
+            {t("Choose when you would like to be reminded to continue your Qur'an journey.")}{" "}</p>
         </div>
 
         <label className="block">
-          <span className="font-medium">Reminder title</span>
+          <span className="font-medium">{t("Reminder title")}</span>
 
           <input
             type="text"
             className="journey-input mt-2 w-full"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Qur'an Reading Reminder"
+            placeholder={t("Qur'an Reading Reminder")}
             maxLength={80}
           />
         </label>
 
         <label className="block">
-          <span className="font-medium">Time</span>
+          <span className="font-medium">{t("Time")}</span>
 
           <input
             type="time"
@@ -292,7 +293,7 @@ async function enableNotifications() {
         </label>
 
         <div>
-          <p className="font-medium">Repeat</p>
+          <p className="font-medium">{t("Repeat")}</p>
 
           <button
             type="button"
@@ -301,8 +302,7 @@ async function enableNotifications() {
             }`}
             onClick={selectEveryDay}
           >
-            Every day
-          </button>
+            {t("Every day")}{" "}</button>
 
           <div className="mt-4 flex flex-wrap gap-2">
             {DAYS.map((day) => {
@@ -318,7 +318,7 @@ async function enableNotifications() {
                   }
                   aria-pressed={selected}
                 >
-                  {day.short}
+                  {t(day.short)}
                 </button>
               );
             })}
@@ -326,7 +326,7 @@ async function enableNotifications() {
         </div>
 
         <div className="text-sm text-[var(--muted)]">
-          Time zone: {timezone}
+          {t("Time zone:")}{" "}{timezone}
         </div>
 
         
@@ -336,7 +336,7 @@ async function enableNotifications() {
           className="quran-btn-primary"
           disabled={busy}
         >
-          {busy ? "Saving..." : "Save Reminder"}
+          {busy ? t("Saving...") : t("Save Reminder")}
         </button>
 
         <button
@@ -344,26 +344,24 @@ async function enableNotifications() {
   className="quran-btn-secondary"
   onClick={enableNotifications}
 >
-  Enable Notifications
-</button>
+  {t("Enable Notifications")}{" "}</button>
 </div>
 
         <p aria-live="polite" className="text-sm min-h-6">
-          {message}
+          {t(message)}
         </p>
       </form>
 
-      <section className="space-y-4" aria-label="Saved reminders">
+      <section className="space-y-4" aria-label={t("Saved reminders")}>
         <div>
-          <h2 className="text-2xl font-semibold">Your reminders</h2>
+          <h2 className="text-2xl font-semibold">{t("Your reminders")}</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            Manage your Qur&apos;an reading schedule.
-          </p>
+            {t("Manage your Qur'an reading schedule.")}{" "}</p>
         </div>
 
         {items.length === 0 ? (
           <div className="quran-card p-6">
-            <p>No reminders have been created yet.</p>
+            <p>{t("No reminders have been created yet.")}</p>
           </div>
         ) : (
           items.map((item) => (
@@ -371,7 +369,7 @@ async function enableNotifications() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="text-sm text-[var(--muted)]">
-                    {item.enabled ? "Alarm on" : "Alarm off"}
+                    {item.enabled ? t("Alarm on") : t("Alarm off")}
                   </p>
 
                   <h3 className="mt-1 text-xl font-semibold">{item.title}</h3>
@@ -393,7 +391,7 @@ async function enableNotifications() {
                   disabled={busy}
                   onClick={() => toggleReminder(item)}
                 >
-                  {item.enabled ? "ON" : "OFF"}
+                  {item.enabled ? t("ON") : t("OFF")}
                 </button>
               </div>
 
@@ -404,7 +402,7 @@ async function enableNotifications() {
                   disabled={busy}
                   onClick={() => toggleReminder(item)}
                 >
-                  {item.enabled ? "Turn Off" : "Turn On"}
+                  {item.enabled ? t("Turn Off") : t("Turn On")}
                 </button>
 
                 <button
@@ -413,8 +411,7 @@ async function enableNotifications() {
                   disabled={busy}
                   onClick={() => deleteReminder(item.id)}
                 >
-                  Delete
-                </button>
+                  {t("Delete")}{" "}</button>
               </div>
             </div>
           ))

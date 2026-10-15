@@ -88,7 +88,7 @@ const { t, language, changeLanguage, busy: changingLanguage } = useI18n();
                 htmlFor="interfaceLanguage"
                 className="mb-2 block text-sm font-medium"
               >
-                {t("Interface language")}{" "}</label>
+                {t("Language")}{" "}</label>
 
               <select
                 id="interfaceLanguage"
@@ -140,3 +140,5 @@ const { t, language, changeLanguage, busy: changingLanguage } = useI18n();
     </main>
   );
 }
+
+

@@ -1,10 +1,13 @@
 "use client";
+import { useI18n } from "@/components/language-provider";
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 function VerifyOtpContent() {
+const { t } = useI18n();
+
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
 
@@ -40,16 +43,13 @@ function VerifyOtpContent() {
       <div className="w-full max-w-md rounded-3xl border bg-white p-8 shadow-sm">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.15em] text-[#B49350]">
-            My Qur&apos;an Journey
-          </p>
+            {t("My Qur'an Journey")}{" "}</p>
 
           <h1 className="mt-3 text-3xl font-semibold text-[#17372C]">
-            Verify your email
-          </h1>
+            {t("Verify your email")}{" "}</h1>
 
           <p className="mt-3 text-sm leading-6 text-gray-500">
-            We sent a verification code to
-          </p>
+            {t("We sent a verification code to")}{" "}</p>
 
           <p className="font-medium text-[#315C4B]">{email}</p>
         </div>
@@ -60,8 +60,7 @@ function VerifyOtpContent() {
               htmlFor="code"
               className="mb-2 block text-sm font-medium text-[#17372C]"
             >
-              Verification code
-            </label>
+              {t("Verification code")}{" "}</label>
 
             <input
               id="code"
@@ -74,13 +73,13 @@ function VerifyOtpContent() {
               onChange={(e) =>
                 setCode(e.target.value.replace(/\D/g, "").slice(0, 8))
               }
-            placeholder="Enter 8-digit code"
+            placeholder={t("Enter 8-digit code")}
               className="w-full rounded-xl border px-4 py-3 text-center text-xl tracking-[0.35em] outline-none focus:border-[#315C4B]"
             />
           </div>
 
           {error && (
-            <p className="text-center text-sm text-red-600">{error}</p>
+            <p className="text-center text-sm text-red-600">{t(error || "")}</p>
           )}
 
           <button
@@ -88,7 +87,7 @@ function VerifyOtpContent() {
             disabled={isLoading || code.length !== 8}
             className="w-full rounded-xl bg-[#315C4B] px-4 py-3 font-medium text-white disabled:opacity-50"
           >
-            {isLoading ? "Verifying..." : "Verify & Continue"}
+            {isLoading ? t("Verifying...") : t("Verify & Continue")}
           </button>
         </form>
       </div>
@@ -96,8 +95,10 @@ function VerifyOtpContent() {
   );
 }
 export default function VerifyOtpPage() {
+const { t } = useI18n();
+
   return (
-    <Suspense fallback={<div className="p-6 text-center">Loading...</div>}>
+    <Suspense fallback={<div className="p-6 text-center">{t("Loading...")}</div>}>
       <VerifyOtpContent />
     </Suspense>
   );
