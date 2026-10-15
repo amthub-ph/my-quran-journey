@@ -26,3 +26,16 @@ test('book player ignores a selected last ayah and plays all seven displayed aya
  for(let i=0;i<7;i++){audio.props.onEnded();await tick();}
  assert.equal(played.length,7);assert.deepEqual(completed,['1:1','1:2','1:3','1:4','1:5','1:6','1:7']);cleanup();
 });
+
+test('next and previous page mounts automatically recite the displayed group in audio mode',async()=>{
+ const effects=[],played=[],completed=[];
+ const media={src:'',async play(){played.push(this.src)},pause(){},removeAttribute(){},load(){}};
+ const module={exports:{}};let blobId=0;
+ const imports={react:{useEffect:fn=>effects.push(fn),useRef:value=>({current:value}),useState:value=>[typeof value==='function'?value():value,()=>{}]},'react-dom':{createPortal:value=>value},'./language-provider':{useI18n:()=>({language:'en'})},'@/lib/page-playback':{createPagePlayback}};
+ vm.runInNewContext(ts.transpileModule(fs.readFileSync('components/page-recitation.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,{module,exports:module.exports,require:id=>imports[id]??require(id),AbortController,URL:{createObjectURL:()=>`blob:${++blobId}`,revokeObjectURL(){}},fetch:async url=>url.startsWith('/api/')?{ok:true,json:async()=>({key:url.split('/').at(-1).split('?')[0],reciter:'ar.alafasy',audio:'https://audio.example/test.mp3'})}:{ok:true,blob:async()=>({size:100})}});
+ const tree=module.exports.PageRecitation({keys:Array.from({length:7},(_,i)=>`1:${i+1}`),autoPlay:true,reciter:'ar.alafasy',audioRef:{current:media},onVerseCompleted:key=>completed.push(key)});
+ const cleanup=effects[0]();const audio=tree.props.children[0];
+ await tick();
+ for(let i=0;i<7;i++){audio.props.onEnded();await tick();}
+ assert.equal(played.length,7);assert.deepEqual(completed,['1:1','1:2','1:3','1:4','1:5','1:6','1:7']);cleanup();
+});

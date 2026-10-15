@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { recordCompletedAyahs } from "@/app/actions/reading-activity";
-import { savePosition } from "@/app/actions/journey";
+import { saveReaderPosition as savePosition } from "@/lib/save-reader-position";
 import { useI18n } from "./language-provider";
 import { Recitation } from "./recitation";
 import { BookPage } from "./book-page";
