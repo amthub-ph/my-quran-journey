@@ -206,3 +206,30 @@ button.reader-ayah-number[aria-pressed="true"] { background: #315c4b; color: whi
 .reader-ayah[data-playing] { background: #e0eee5; border-radius: 6px; box-shadow: inset 4px 0 0 #315c4b; }
 .reader-page-text[dir="rtl"] .reader-ayah[data-playing] { box-shadow: inset -4px 0 0 #315c4b; }
 .reader-ayah[data-playing] .reader-ayah-number { background: #315c4b; border-color: #315c4b; color: white; }
+
+.reader-page-navigation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: .5rem; align-items: start; }
+.reader-page-navigation > button { width: 100%; min-width: 0; white-space: normal; }
+.reader-page-playback button { width: 100%; min-width: 0; white-space: normal; }
+.reader-page-playback { min-width: 0; }
+@media (max-width: 480px) {
+  .reader-page-navigation button { padding-inline: .4rem; font-size: .8rem; }
+  .reader-page-playback p { font-size: .75rem; overflow-wrap: anywhere; }
+}
+
+.reader-source-note { color: #63846b; border-top: 1px solid #e5eee7; padding-top: 1rem; }
+
+.reader-page-navigation-silent { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.reader-fullscreen { position: fixed; inset: 0; z-index: 1000; max-width: none; margin: 0; padding: 1rem; overflow-y: auto; background: #faf9f5; }
+.reader-fullscreen > * { max-width: 70rem; margin-inline: auto; }
+.reader-fullscreen .reader-toolbar > label:not(:last-child),
+.reader-fullscreen .reader-recitation-settings > label,
+.reader-fullscreen .reader-secondary-actions,
+.reader-fullscreen .reader-surah-navigation,
+.reader-fullscreen .reader-source-note { display: none; }
+.reader-fullscreen .reader-toolbar { grid-template-columns: 1fr; }
+.reader-fullscreen .reader-toolbar > label:last-child { width: min(100%, 24rem); }
+.reader-fullscreen .quran-card { padding: clamp(1rem, 3vw, 2rem); }
+.reader-fullscreen .reader-recitation-settings:has(> label:only-child) { margin: 0; }
+
+.reader-fullscreen .reader-fullscreen-heading { position: sticky; top: 0; z-index: 2; background: #faf9f5; padding-block: .5rem; }

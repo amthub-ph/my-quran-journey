@@ -9,7 +9,7 @@ export function parseVerseKey(key: string) {
 }
 export function positionPercent(key: string) {
   const { ayah, chapter } = parseVerseKey(key);
-  return Math.round(ayah / chapter.verses_count * 100);
+  return ayah === chapter.verses_count ? 100 : Math.min(99, Math.round(ayah / chapter.verses_count * 100));
 }
 export type VerseContent = {
   key: string; arabic: string; english?: string; englishSource?: string;

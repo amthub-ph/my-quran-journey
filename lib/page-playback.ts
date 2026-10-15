@@ -1,8 +1,8 @@
 export type PlaybackStatus = "idle" | "loading" | "playing" | "paused" | "finished" | "error";
 export function createPagePlayback(keys: string[], media: Pick<HTMLAudioElement, "src" | "play" | "pause">,
   load: (key: string, signal: AbortSignal) => Promise<string>,
-  report: (status: PlaybackStatus, index: number) => void) {
-  let index = 0, generation = 0, active = false, loaded = false;
+  report: (status: PlaybackStatus, index: number) => void, initialKey?: string) {
+  let index = Math.max(0, keys.indexOf(initialKey ?? "")), generation = 0, active = false, loaded = false;
   let abort: AbortController | undefined;
   const ahead = new Map<number, { abort: AbortController; result: Promise<string | null> }>();
   function clearAhead() { for (const item of ahead.values()) item.abort.abort(); ahead.clear(); }

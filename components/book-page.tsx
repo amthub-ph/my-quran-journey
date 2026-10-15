@@ -3,9 +3,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { paginateAyahs, type ReadingPage, type ReadingVerse, type ReadingLanguage } from "@/lib/reading-layout";
 import { useI18n } from "./language-provider";
 
-export function BookPage({ verses, language, fontSize, ayah, busy, onNavigate, onLastPage, onPageChange, activeAyah }: {
-  activeAyah?: string | null; verses: ReadingVerse[]; language: ReadingLanguage; fontSize: number; ayah: number; busy: boolean;
-  onNavigate: (ayah: number) => void; onLastPage: (last: boolean) => void; onPageChange: (page: ReadingPage | null) => void;
+export function BookPage({ verses, language, fontSize, ayah, busy, onNavigate, onLastPage, onPageChange, activeAyah, onPlaybackTarget }: {
+  onPlaybackTarget: (target: HTMLDivElement | null) => void; activeAyah?: string | null; verses: ReadingVerse[]; language: ReadingLanguage; fontSize: number; ayah: number; busy: boolean;
+  onNavigate: (ayah: number, completed?: boolean) => void; onLastPage: (last: boolean) => void; onPageChange: (page: ReadingPage | null) => void;
 }) {
   const { t, language: uiLanguage } = useI18n();
   const measure = useRef<HTMLDivElement>(null), size = useRef<HTMLDivElement>(null), paper = useRef<HTMLElement>(null);
@@ -40,8 +40,8 @@ export function BookPage({ verses, language, fontSize, ayah, busy, onNavigate, o
   useEffect(() => { onLastPage(ready && !!page && page.end === verses.length); }, [ready, page, verses.length, onLastPage]);
   useEffect(() => { onPageChange(ready ? page ?? null : null); }, [ready, page, onPageChange]);
   const textLanguage = language === "arabic" ? "ar" : language === "english" ? "en" : "tl";
-  function turn(next: number) {
-    onNavigate(next);
+  function turn(next: number, completed = false) {
+    onNavigate(next, completed);
     // Page turns bring the new page into view; selecting an ayah does not move the viewport.
     requestAnimationFrame(() => paper.current?.scrollIntoView({ block: "start", behavior: "instant" }));
   }
@@ -66,14 +66,14 @@ export function BookPage({ verses, language, fontSize, ayah, busy, onNavigate, o
         </div>}
       </div>
     </article>
-    <nav className="flex items-center justify-between gap-3" aria-label={t("Page navigation")}>
+    <nav className={`reader-page-navigation ${language !== "arabic" ? "reader-page-navigation-silent" : ""}`} aria-label={t("Page navigation")}>
       <button type="button" className="quran-btn-secondary" disabled={busy || !ready || pageIndex === 0} onClick={() => turn(pages[pageIndex - 1].start)}>
-        <span aria-hidden="true">{uiLanguage === "ar" ? "→ " : "← "}</span>{t("Previous page")}
+        <span aria-hidden="true">{uiLanguage === "ar" ? "→ " : "← "}</span>{uiLanguage === "ar" ? "السابق" : "Previous"}
       </button>
-      <button type="button" className="quran-btn-primary" disabled={busy || !ready || pageIndex >= pages.length - 1} onClick={() => turn(pages[pageIndex + 1].start)}>
-        {t("Next page")}<span aria-hidden="true">{uiLanguage === "ar" ? " ←" : " →"}</span>
+      {language === "arabic" && <div ref={onPlaybackTarget} className="reader-page-playback" />}
+      <button type="button" className="quran-btn-primary" disabled={busy || !ready || pageIndex >= pages.length - 1} onClick={() => turn(pages[pageIndex + 1].start, true)}>
+        {uiLanguage === "ar" ? "التالي" : "Next"}<span aria-hidden="true">{uiLanguage === "ar" ? " ←" : " →"}</span>
       </button>
     </nav>
-    <p className="text-sm text-[var(--muted)]">{t("Pages adapt to your screen and text size. Long ayahs stay whole and may require scrolling.")}</p>
   </div>;
 }

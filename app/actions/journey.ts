@@ -79,6 +79,7 @@ export async function saveReflection(content: string, verseKey?: string) {
     }
 
     revalidatePath("/reflections");
+    revalidatePath("/protected");
 
     return { success: true };
   } catch {
@@ -107,6 +108,7 @@ export async function deleteReflection(id: string) {
     }
 
     revalidatePath("/reflections");
+    revalidatePath("/protected");
 
     return { success: true };
   } catch {
@@ -141,6 +143,7 @@ export async function updateReflection(id: string, content: string) {
     }
 
     revalidatePath("/reflections");
+    revalidatePath("/protected");
 
     return { success: true };
   } catch {

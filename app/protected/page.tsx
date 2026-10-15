@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { JourneyShell } from "@/components/journey-shell";
+import { DailyGoal } from "@/components/daily-goal";
+import { SurahProgress } from "@/components/surah-progress";
 import { SavedPosition } from "@/components/saved-position";
 import { LogoutButton } from "@/components/logout-button";
 
@@ -30,9 +32,9 @@ const { t } = await getI18n();
 
     db
       .from("journey_progress")
-      .select("verse_key")
+      .select("verse_key,updated_at")
       .eq("user_id", user.id)
-      .maybeSingle(),
+      .order("updated_at", { ascending: false }),
 
    db
   .from("journey_reflections")
@@ -89,113 +91,19 @@ const { t } = await getI18n();
             </div>
 
             <SavedPosition
-              verseKey={progress?.verse_key}
+              verseKey={progress?.[0]?.verse_key}
               error={!!progressError}
             />
           </div>
 
-          <div className="rounded-[24px] bg-[#F3EEE2] p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8A6D35]">
-              {t("Today's goal")}{" "}</p>
-
-            <div className="mt-5 flex items-center gap-5">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-[8px] border-[#315C4B] bg-white">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[#315C4B]">
-                    {dailyGoal}
-                  </div>
-                  <div className="text-[10px] uppercase text-gray-500">
-                    {t("Ayat")}{" "}</div>
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold text-[#17372C]">
-                  {t("Daily Reading")}{" "}</h2>
-
-                <p className="mt-1 text-sm leading-5 text-gray-600">
-                  {t("Your daily goal is")}{" "}{dailyGoal} {t("ayat.")}{" "}</p>
-              </div>
-            </div>
-          </div>
+          <DailyGoal initialGoal={dailyGoal} />
         </section>
 
-        {/* STATS */}
-        <section className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border bg-white p-5">
-            <p className="text-sm text-gray-500">{t("Saved position")}</p>
-            <p className="mt-2 text-xl font-semibold text-[#315C4B]">
-              {progress?.verse_key || t("Not started")}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border bg-white p-5">
-           <p className="text-sm text-gray-500">{t("Reflections")}</p>
-            <p className="mt-2 text-2xl font-semibold text-[#315C4B]">
-             {reflectionError ? "—" : reflectionCount || 0}
-            </p>
-          </div>
-
-          <div className="col-span-2 rounded-2xl border bg-white p-5 md:col-span-1">
-            <p className="text-sm text-gray-500">{t("Daily goal")}</p>
-            <p className="mt-2 text-2xl font-semibold text-[#315C4B]">
-              {dailyGoal} {t("ayat")}{" "}</p>
-          </div>
+        <section className="rounded-[24px] border bg-white p-6 shadow-sm space-y-5">
+          <div className="flex items-center justify-between gap-4"><h2 className="text-2xl font-semibold text-[#17372C]">{t("Progress")}</h2><Link href="/progress" className="quran-btn-secondary">{t("Progress")}</Link></div>
+          <SurahProgress records={progress ?? []} error={!!progressError} />
         </section>
-
-        {/* QUICK ACCESS */}
-        <section>
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-[#17372C]">
-              {t("Quick Access")}{" "}</h2>
-            <p className="mt-1 text-sm text-gray-500">
-              {t("Everything you need for your Qur'an journey.")}{" "}</p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-            <Link
-              href="/quran"
-              className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
-            >
-              <div className="mb-4 text-2xl">📖</div>
-              <h3 className="font-semibold text-[#17372C]">{t("Qur'an")}</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {t("Browse and continue reading")}{" "}</p>
-            </Link>
-
-            <Link
-              href="/progress"
-              className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
-            >
-              <div className="mb-4 text-2xl">◔</div>
-              <h3 className="font-semibold text-[#17372C]">{t("Progress")}</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {t("View your saved position")}{" "}</p>
-            </Link>
-
-            <Link
-              href="/reflections"
-              className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
-            >
-              <div className="mb-4 text-2xl">🔖</div>
-              <h3 className="font-semibold text-[#17372C]">{t("Reflections")}</h3>
-              <p className="mt-1 text-sm text-gray-500">
-               {t("Write and revisit your Qur’an reflections")}{" "}</p>
-            </Link>
-
-            <Link
-              href="/reminders"
-              className="group rounded-[22px] border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
-            >
-              <div className="mb-4 text-2xl">◷</div>
-              <h3 className="font-semibold text-[#17372C]">{t("Reminders")}</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {t("Plan your reading time")}{" "}</p>
-            </Link>
-
-          </div>
-        </section>
+        <Link href="/progress" className="quran-btn-secondary inline-flex items-center gap-3"><span>{t("Reflections")}</span><span className="rounded-full bg-[#e8f0ec] px-3 py-1 font-semibold text-[#315C4B]">{reflectionError ? "—" : reflectionCount || 0}</span></Link>
 
         <div className="flex justify-end border-t pt-5">
           <LogoutButton />
