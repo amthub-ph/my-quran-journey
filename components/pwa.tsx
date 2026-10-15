@@ -2,6 +2,7 @@
 import { useI18n } from "@/components/language-provider";
 
 import { useEffect, useState } from "react";
+import { enablePush, testPush } from "@/lib/push-client";
 
 type InstallPrompt = Event & {
   prompt: () => Promise<void>;
@@ -63,70 +64,21 @@ const { t } = useI18n();
   }
 
   async function enableNotifications() {
-    if (!("Notification" in window)) {
-      setMessage("Notifications are not supported by this browser.");
-      setNotificationPermission("unsupported");
-      return;
-    }
-
-    if (!("serviceWorker" in navigator)) {
-      setMessage("Background notifications are not supported by this browser.");
-      return;
-    }
-
     try {
-      const permission = await Notification.requestPermission();
-      setNotificationPermission(permission);
-
-      if (permission === "granted") {
-        await navigator.serviceWorker.ready;
-        setMessage(
-          t("Notifications enabled. Next we will connect this device to your saved reminders.")
-        );
-      } else if (permission === "denied") {
-        setMessage(
-          t("Notifications are blocked. Allow notifications for this site in your browser settings.")
-        );
-      } else {
-        setMessage("Notification permission was not enabled.");
-      }
-    } catch {
-      setMessage("Notifications could not be enabled.");
+      await enablePush();
+      setNotificationPermission("granted");
+      setMessage("This device is registered for reminders. Use Test Notification to check delivery.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not enable notifications.");
     }
   }
 
   async function testNotification() {
-    if (!("Notification" in window)) {
-      setMessage("Notifications are not supported by this browser.");
-      return;
-    }
-
-    if (Notification.permission !== "granted") {
-      setMessage("Enable notifications first.");
-      return;
-    }
-
-    if (!("serviceWorker" in navigator)) {
-      setMessage("Background notifications are unavailable.");
-      return;
-    }
-
     try {
-      const registration = await navigator.serviceWorker.ready;
-
-      await registration.showNotification(t("Time to read the Qur'an"), {
-        body: t("Continue your Qur'an journey from where you left off."),
-        icon: "/icons/icon-192.png",
-        badge: "/icons/icon-192.png",
-        tag: "quran-reminder-test",
-        data: {
-          url: "/progress",
-        },
-      });
-
-      setMessage("Test notification sent.");
-    } catch {
-      setMessage("The test notification could not be sent.");
+      setMessage("Testing notification delivery...");
+      setMessage(await testPush());
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The notification test failed.");
     }
   }
 
@@ -151,7 +103,7 @@ const { t } = useI18n();
           onClick={enableNotifications}
         >
           {notificationPermission === "granted"
-            ? t("Notifications Enabled")
+            ? t("Connect Notifications")
             : t("Enable Notifications")}
         </button>
 

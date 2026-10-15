@@ -3,6 +3,7 @@ import { useI18n } from "@/components/language-provider";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { enablePush } from "@/lib/push-client";
 
 type Reminder = {
   id: number;
@@ -139,63 +140,14 @@ const { t, language } = useI18n();
     }
   }
 async function enableNotifications() {
+  setBusy(true);
   try {
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-      setMessage("Push notifications are not supported on this device.");
-      return;
-    }
-
-    const permission = await Notification.requestPermission();
-
-    if (permission !== "granted") {
-      setMessage("Notification permission was not granted.");
-      return;
-    }
-
-    const registration = await navigator.serviceWorker.ready;
-
-    const existingSubscription =
-      await registration.pushManager.getSubscription();
-
-    if (existingSubscription) {
-      setMessage("Notifications are already enabled.");
-      return;
-    }
-
-    const response = await fetch("/api/push/subscribe", {
-      method: "GET",
-    });
-
-    if (!response.ok) {
-      throw new Error(t("Could not get push notification settings."));
-    }
-
-    const { publicKey } = await response.json();
-
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: publicKey,
-    });
-
-    const saveResponse = await fetch("/api/push/subscribe", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(subscription),
-    });
-
-    if (!saveResponse.ok) {
-      throw new Error(t("Could not save notification subscription."));
-    }
-
-    setMessage("Notifications enabled successfully.");
+    await enablePush();
+    setMessage("This device is registered for reminders. Use Test Notification to check delivery.");
   } catch (error) {
-    console.error(error);
-    setMessage("Could not enable notifications. Please try again.");
-  }
+    setMessage(error instanceof Error ? error.message : "Could not enable notifications.");
+  } finally { setBusy(false); }
 }
-
 
   async function toggleReminder(item: Reminder) {
     setBusy(true);

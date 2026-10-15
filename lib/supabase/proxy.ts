@@ -13,6 +13,7 @@ export async function updateSession(
 
   if (
     [
+      "/api/reminders/send", // Authenticated by CRON_SECRET in its route.
       "/robots.txt",
       "/sitemap.xml",
       "/sw.js",

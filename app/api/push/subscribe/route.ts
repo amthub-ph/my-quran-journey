@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+import { validEndpoint } from "@/lib/push-server";
+
 type PushSubscriptionBody = {
   endpoint?: string;
   keys?: {
@@ -32,7 +34,7 @@ export async function POST(request: Request) {
     const p256dh = subscription.keys?.p256dh;
     const auth = subscription.keys?.auth;
 
-    if (!endpoint || !p256dh || !auth) {
+    if (typeof endpoint !== "string" || !validEndpoint(endpoint) || typeof p256dh !== "string" || !/^[A-Za-z0-9_-]{87}=?$/.test(p256dh) || typeof auth !== "string" || !/^[A-Za-z0-9_-]{22}={0,2}$/.test(auth)) {
       return NextResponse.json(
         { error: "Invalid push subscription." },
         { status: 400 }
