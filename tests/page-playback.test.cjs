@@ -3,17 +3,29 @@ const moduleValue={exports:{}};
 vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/page-playback.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module:moduleValue,exports:moduleValue.exports,AbortController});
 const {createPagePlayback}=moduleValue.exports;
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function setup(load=async key=>key){const played=[],states=[],media={src:'',play:async()=>{played.push(media.src)},pause:()=>{}};const player=createPagePlayback(['3:4','3:5','3:6'],media,load,(state,index)=>states.push([state,index]));return {player,played,states};}
+test('disposed audio request cannot overwrite a replacement player source',async()=>{
+ let resolve; const media={src:'',load(){},pause(){},async play(){}};
+ const player=createPagePlayback(['1:1'],media,()=>new Promise(r=>{resolve=r}),()=>{});
+ const pending=player.play();player.dispose();media.src='replacement';resolve('stale');await pending;
+ assert.equal(media.src,'replacement');
+});
+test('media error cancels pending playback before its source resolves',async()=>{
+ let resolve; const played=[]; const media={src:'',load(){},pause(){},async play(){played.push(this.src)}};
+ const player=createPagePlayback(['1:1'],media,()=>new Promise(r=>{resolve=r}),()=>{});
+ const pending=player.play();player.error();resolve('stale');await pending;
+ assert.equal(played.length,0);assert.equal(media.src,'');
+});
+function setup(load=async key=>key){const played=[],states=[],media={src:'',load(){},play:async()=>{played.push(media.src)},pause:()=>{}};const player=createPagePlayback(['3:4','3:5','3:6'],media,load,(state,index)=>states.push([state,index]));return {player,played,states};}
 test('plays the visible group in order and stops at its boundary; replay starts at first ayah',async()=>{const {player,played,states}=setup();await player.play();player.ended();await tick();player.ended();await tick();player.ended();await tick();assert.deepEqual(played,['3:4','3:5','3:6']);assert.deepEqual(states.at(-1),['finished',2]);await player.play();assert.equal(played.at(-1),'3:4');});
 test('pause during loading prevents delayed audio from starting',async()=>{let resolve;const {player,played}=setup(()=>new Promise(r=>resolve=r));const pending=player.play();player.pause();resolve('3:4');await pending;assert.deepEqual(played,[]);});
 test('page or reciter change disposal prevents stale continuation',async()=>{let resolve;const {player,played}=setup(()=>new Promise(r=>resolve=r));const pending=player.play();player.dispose();resolve('old');await pending;player.ended();assert.deepEqual(played,[]);});
 test('failed next ayah stays in place and retries without skipping',async()=>{let fail=true;const {player,played,states}=setup(async key=>{if(key==='3:5'&&fail)throw Error('offline');return key;});await player.play();player.ended();await tick();assert.deepEqual(states.at(-1),['error',1]);fail=false;await player.play();assert.deepEqual(played,['3:4','3:5']);});
 test('pause and resume preserve loaded ayah and duplicate play is ignored',async()=>{const {player,played}=setup();await player.play();await player.play();player.pause();player.ended();await player.play();assert.deepEqual(played,['3:4','3:4']);});
-test('browser play rejection permits a manual retry at the same ayah',async()=>{let fail=true;const states=[];const media={src:'',pause(){},async play(){if(fail)throw Error('NotAllowedError')}};const player=createPagePlayback(['1:1'],media,async key=>key,(s,i)=>states.push([s,i]));await player.play();assert.deepEqual(states.at(-1),['error',0]);fail=false;await player.play();assert.deepEqual(states.at(-1),['playing',0]);});
+test('browser play rejection permits a manual retry at the same ayah',async()=>{let fail=true;const states=[];const media={src:'',load(){},pause(){},async play(){if(fail)throw Error('NotAllowedError')}};const player=createPagePlayback(['1:1'],media,async key=>key,(s,i)=>states.push([s,i]));await player.play();assert.deepEqual(states.at(-1),['error',0]);fail=false;await player.play();assert.deepEqual(states.at(-1),['playing',0]);});
 test('next ayah is prepared during playback and reused at the transition',async()=>{const requests=[];const {player,played}=setup(async key=>{requests.push(key);return key;});await player.play();await tick();assert.deepEqual(requests,['3:4','3:5']);assert.deepEqual(played,['3:4']);player.ended();await tick();assert.deepEqual(played,['3:4','3:5']);assert.equal(requests.filter(key=>key==='3:5').length,1);assert.equal(requests.at(-1),'3:6');player.dispose();});
 test('disposing cancels speculative loading and prevents next playback',async()=>{let signal;const {player,played}=setup(async(key,abortSignal)=>{if(key==='3:5'){signal=abortSignal;return new Promise(()=>{});}return key;});await player.play();player.dispose();assert.equal(signal.aborted,true);player.ended();assert.deepEqual(played,['3:4']);});
-test('returning to a saved ayah resumes within its visible page',async()=>{const played=[];const media={src:'',pause(){},async play(){played.push(this.src)}};const player=createPagePlayback(['2:4','2:5','2:6','2:7'],media,async key=>key,()=>{},'2:6');await player.play();player.ended();await tick();assert.deepEqual(played,['2:6','2:7']);player.dispose();});
-test('saved position outside the current page safely starts at its first ayah',async()=>{const played=[];const media={src:'',pause(){},async play(){played.push(this.src)}};const player=createPagePlayback(['2:8','2:9'],media,async key=>key,()=>{},'2:6');await player.play();assert.deepEqual(played,['2:8']);player.dispose();});
+test('returning to a saved ayah resumes within its visible page',async()=>{const played=[];const media={src:'',load(){},pause(){},async play(){played.push(this.src)}};const player=createPagePlayback(['2:4','2:5','2:6','2:7'],media,async key=>key,()=>{},'2:6');await player.play();player.ended();await tick();assert.deepEqual(played,['2:6','2:7']);player.dispose();});
+test('saved position outside the current page safely starts at its first ayah',async()=>{const played=[];const media={src:'',load(){},pause(){},async play(){played.push(this.src)}};const player=createPagePlayback(['2:8','2:9'],media,async key=>key,()=>{},'2:6');await player.play();assert.deepEqual(played,['2:8']);player.dispose();});
 test('book player ignores a selected last ayah and plays all seven displayed ayahs',async()=>{
  const effects=[],played=[],completed=[];
  const media={src:'',async play(){played.push(this.src)},pause(){},removeAttribute(){},load(){}};

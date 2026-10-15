@@ -42,10 +42,10 @@ test('configured English resource keeps its attribution and loads all six pages 
 test('failed configured translation falls back as one complete chapter',async()=>{
   const result=await translationServer(encFixture(1,'english_rwwad'),{QF_CLIENT_ID:'fixture',QF_CLIENT_SECRET:'fixture'},async()=>{throw Error('Provider unavailable');}).loadChapterTranslation(1,'english');assert.equal(result.fallback,true);assert.equal(result.verses.length,7);
 });
-test('chapter API rejects invalid input and requires authentication',async()=>{
+test('chapter API rejects invalid input and permits guest translations',async()=>{
   let user=null,calls=0;
   const route=load('app/api/quran/chapter/[surah]/route.ts',{'@/lib/quran':quran,'@/lib/chapter-translations':{loadChapterTranslation:async()=>{calls++;return {surah:1};}},'@/lib/supabase/server':{createClient:async()=>({auth:{getUser:async()=>({data:{user}})}})}});
   const call=(surah,language)=>route.GET(new Request(`https://test/api?language=${language}`),{params:Promise.resolve({surah})});
-  assert.equal((await call('01','english')).status,400);assert.equal((await call('115','english')).status,400);assert.equal((await call('1','arabic')).status,400);assert.equal((await call('1','english')).status,401);assert.equal(calls,0);
-  user={id:'fixture'};const response=await call('1','tagalog');assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'private, no-store');assert.equal(calls,1);
+  assert.equal((await call('01','english')).status,400);assert.equal((await call('115','english')).status,400);assert.equal((await call('1','arabic')).status,400);assert.equal((await call('1','english')).status,200);assert.equal(calls,1);
+  user={id:'fixture'};const response=await call('1','tagalog');assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'public, max-age=3600');assert.equal(calls,2);
 });

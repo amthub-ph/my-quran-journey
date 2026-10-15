@@ -1,6 +1,6 @@
 "use client";
-import { useI18n } from "@/components/language-provider";
 
+import { useI18n } from "@/components/language-provider";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,25 +14,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-
 import { useState } from "react";
 
 export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-const { t } = useI18n();
+  const { t } = useI18n();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
- 
 
-  const handleSignUp = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSignUp = async (
+    e: React.SubmitEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault();
+
     const supabase = createClient();
+
     setIsLoading(true);
     setError(null);
 
@@ -43,76 +45,140 @@ const { t } = useI18n();
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } =
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/confirm`,
+          },
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      window.location.href = `/auth/verify-otp?email=${encodeURIComponent(
         email,
-        password,
-        options: {
-         emailRedirectTo: `${window.location.origin}/auth/confirm`,
-        },
-      });
-      if (error) throw error;
-     window.location.href = `/auth/verify-otp?email=${encodeURIComponent(email)}`;
+      )}`;
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : t("An error occurred"));
+      setError(
+        error instanceof Error
+          ? error.message
+          : t("An error occurred"),
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div
+      className={cn(
+        "flex flex-col gap-6",
+        className,
+      )}
+      {...props}
+    >
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">{t("Sign up")}</CardTitle>
-          <CardDescription>{t("Create a new account")}</CardDescription>
+          <CardTitle className="text-2xl">
+            {t("Sign up")}
+          </CardTitle>
+
+          <CardDescription>
+            {t("Create a new account")}
+          </CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">{t("Email")}</Label>
+                <Label htmlFor="email">
+                  {t("Email")}
+                </Label>
+
                 <Input
                   id="email"
                   type="email"
                   placeholder="m@example.com"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
                 />
               </div>
+
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">{t("Password")}</Label>
+                  <Label htmlFor="password">
+                    {t("Password")}
+                  </Label>
                 </div>
+
                 <Input
                   id="password"
                   type="password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
                 />
               </div>
+
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="repeat-password">{t("Repeat Password")}</Label>
+                  <Label htmlFor="repeat-password">
+                    {t("Repeat Password")}
+                  </Label>
                 </div>
+
                 <Input
                   id="repeat-password"
                   type="password"
                   required
                   value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
+                  onChange={(e) =>
+                    setRepeatPassword(
+                      e.target.value,
+                    )
+                  }
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{t(error || "")}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? t("Creating an account...") : t("Sign up")}
+
+              {error && (
+                <p className="text-sm text-red-500">
+                  {t(error || "")}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[var(--primary)] text-white hover:bg-[#264A3D] focus-visible:ring-[var(--primary)]"
+              >
+                {isLoading
+                  ? t(
+                      "Creating an account...",
+                    )
+                  : t("Sign up")}
               </Button>
             </div>
+
             <div className="mt-4 text-center text-sm">
-              {t("Already have an account?")}{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
-                {t("Login")}{" "}</Link>
+              {t(
+                "Already have an account?",
+              )}{" "}
+
+              <Link
+                href="/auth/login"
+                className="font-semibold text-[var(--primary)] underline underline-offset-4 hover:opacity-80"
+              >
+                {t("Login")}
+              </Link>
             </div>
           </form>
         </CardContent>
@@ -120,4 +186,3 @@ const { t } = useI18n();
     </div>
   );
 }
-

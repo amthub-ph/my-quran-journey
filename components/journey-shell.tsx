@@ -1,5 +1,10 @@
 import { getI18n } from "@/lib/i18n/server";
+import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import Link from "next/link";
+
+import { GuestSaveButton } from "@/components/guest-save-button";
+import { GuestFeatureNav } from "@/components/guest-feature-nav";
 
 export async function JourneyShell({
   title,
@@ -8,51 +13,160 @@ export async function JourneyShell({
   title?: string;
   children: React.ReactNode;
 }) {
-const { t } = await getI18n();
+  const {
+    t,
+    language,
+  } = await getI18n();
+
+  const isArabic =
+    language === "ar";
+
+  const db =
+    await createClient();
+
+  const {
+    data: {
+      user,
+    },
+  } =
+    await db.auth.getUser();
+
+  const cookieStore =
+    await cookies();
+
+  const isGuest =
+    !user &&
+    cookieStore.get(
+      "quran_guest",
+    )?.value === "true";
 
   return (
-    <main className="min-h-screen bg-[#FAF9F5]">
+    <main
+      dir={
+        isArabic
+          ? "rtl"
+          : "ltr"
+      }
+      className="min-h-screen bg-[#FAF9F5]"
+    >
       <header className="border-b border-[#315C4B]/10 bg-white shadow-sm">
         <div className="quran-container flex flex-wrap items-center justify-between gap-4 py-5">
+          {/* BRAND */}
           <Link
-            href="/protected"
+            href={
+              user
+                ? "/protected"
+                : "/start"
+            }
             className="text-xl font-bold text-[#17372C] transition hover:text-[#315C4B]"
           >
-            {t("My Qur'an Journey")}{" "}</Link>
+            {isArabic
+              ? "رحلتي مع القرآن"
+              : "My Qur'an Journey"}
+          </Link>
 
+          {/* NAVIGATION */}
           <nav
-            aria-label={t("Main navigation")}
+            aria-label={t(
+              "Main navigation",
+            )}
             className="flex flex-wrap items-center gap-2 text-base font-semibold"
           >
+            {/* QUR'AN IS AVAILABLE TO EVERYONE */}
             <Link
               href="/quran"
               className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
             >
-              {t("📖 Qur'an")}{" "}</Link>
+              {isArabic
+                ? "📖 القرآن"
+                : "📖 Qur'an"}
+            </Link>
 
-            <Link
-              href="/progress"
-              className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
-            >
-              {t("◔ Progress")}{" "}</Link>
+            {/* SIGNED-IN USER */}
+            {user && (
+              <>
+                <Link
+                  href="/progress"
+                  className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
+                >
+                  {isArabic
+                    ? "◷ التقدم"
+                    : "◷ Progress"}
+                </Link>
 
-            <Link
-              href="/reflections"
-              className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
-            >
-              {t("✦ Reflections")}{" "}</Link>
+                <Link
+                  href="/reflections"
+                  className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
+                >
+                  {isArabic
+                    ? "✦ التأملات"
+                    : "✦ Reflections"}
+                </Link>
 
-            <Link
-              href="/reminders"
-              className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
-            >
-              {t("◷ Reminders")}{" "}</Link>
+                <Link
+                  href="/bookmarks"
+                  className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
+                >
+                  {isArabic
+                    ? "🔖 الإشارات المرجعية"
+                    : "🔖 Bookmarks"}
+                </Link>
 
-            <Link
-              href="/protected"
-              className="rounded-xl bg-[#315C4B] px-4 py-3 text-white transition hover:bg-[#264A3D]"
-            >
-              {t("⌂ Dashboard")}{" "}</Link>
+                <Link
+                  href="/reminders"
+                  className="rounded-xl px-4 py-3 text-[#17372C] transition hover:bg-[#F3EEE2] hover:text-[#315C4B]"
+                >
+                  {isArabic
+                    ? "◷ التذكيرات"
+                    : "◷ Reminders"}
+                </Link>
+
+                <Link
+                  href="/protected"
+                  className="rounded-xl bg-[#315C4B] px-4 py-3 text-white transition hover:bg-[#264A3D]"
+                >
+                  {isArabic
+                    ? "⌂ لوحة التحكم"
+                    : "⌂ Dashboard"}
+                </Link>
+              </>
+            )}
+
+            {/* GUEST USER */}
+            {isGuest && (
+              <>
+                <span className="rounded-full bg-[#F5EEDC] px-4 py-2 text-sm font-medium text-[#8A6D35]">
+                  {isArabic
+                    ? "ضيف"
+                    : "Guest"}
+                </span>
+
+                {/* ACCOUNT-ONLY FEATURES */}
+                <GuestFeatureNav
+                  isArabic={
+                    isArabic
+                  }
+                />
+
+                <Link
+                  href="/auth/sign-up"
+                  className="rounded-xl border border-[#315C4B] px-4 py-3 text-[#315C4B] transition hover:bg-[#F3EEE2]"
+                >
+                  {isArabic
+                    ? "إنشاء حساب"
+                    : "Create Account"}
+                </Link>
+
+                <Link
+                  href="/auth/login"
+                  className="rounded-xl bg-[#315C4B] px-4 py-3 text-white transition hover:bg-[#264A3D]"
+                >
+                  {isArabic
+                    ? "تسجيل الدخول"
+                    : "Sign In"}
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -62,6 +176,40 @@ const { t } = await getI18n();
           <h1 className="mb-6 text-3xl font-semibold text-[#17372C]">
             {title}
           </h1>
+        )}
+
+        {/* GUEST NOTICE */}
+        {isGuest && (
+          <div className="mb-6 rounded-[20px] border border-[#D6B46B]/40 bg-[#FFF9EC] px-5 py-4">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <p className="font-semibold text-[#17372C]">
+                  {isArabic
+                    ? "أنت تقرأ كضيف"
+                    : "You're reading as a guest"}
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-[#65716B]">
+                  {isArabic
+                    ? "يتم حفظ موضع قراءتك مؤقتًا خلال هذه الجلسة. أنشئ حسابًا أو سجّل الدخول لحفظ تقدمك بشكل دائم وإضافة التأملات والإشارات المرجعية والتذكيرات والمتابعة في زياراتك القادمة."
+                    : "Your reading position is saved temporarily during this session. Create an account or sign in to save progress permanently, add reflections, bookmarks and reminders, and continue on future visits."}
+                </p>
+              </div>
+
+              <GuestSaveButton
+                label={
+                  isArabic
+                    ? "احفظ رحلتي"
+                    : "Save My Journey"
+                }
+                savedLabel={
+                  isArabic
+                    ? "تم الحفظ لهذه الجلسة ✓"
+                    : "Saved for this session ✓"
+                }
+              />
+            </div>
+          </div>
         )}
 
         {children}
