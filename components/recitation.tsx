@@ -41,7 +41,7 @@ export function Recitation({ verseKey, audioRef, pageKeys, stopToken, onActiveAy
         try { localStorage.setItem(storageKey, event.target.value); } catch { /* Selection still works for this session. */ }
       }}>{reciters.map(item => <option key={item.id} value={item.id}>{ar ? item.ar : item.en}</option>)}</select>
     </label>
-    {pageKeys !== undefined && ready && <PageRecitation onVerseCompleted={onVerseCompleted} autoPlay={autoPlay} onRecitationEnabled={onRecitationEnabled} resumeKey={verseKey} onPauseSave={onPauseSave} saving={saving} key={`${pageKeys.join(",")}:${reciter}:${stopToken}`} playbackTarget={playbackTarget} keys={pageKeys} reciter={reciter} audioRef={audioRef} onActiveAyah={onActiveAyah} />}
+    {pageKeys !== undefined && ready && <PageRecitation onVerseCompleted={onVerseCompleted} autoPlay={autoPlay} onRecitationEnabled={onRecitationEnabled} onPauseSave={onPauseSave} saving={saving} key={`${pageKeys.join(",")}:${reciter}:${stopToken}`} playbackTarget={playbackTarget} keys={pageKeys} reciter={reciter} audioRef={audioRef} onActiveAyah={onActiveAyah} />}
     {pageKeys === undefined && !current && !error && <p role="status">{ar ? "جارٍ تحميل التلاوة…" : "Loading recitation…"}</p>}
     {pageKeys === undefined && current && <audio key={`${verseKey}:${reciter}:${retry}`} ref={audioRef} controls onEnded={() => onVerseCompleted?.(verseKey)} preload="none" src={current.audio} className="w-full"
       aria-label={ar ? "تلاوة الآية الحالية" : "Recitation of the current ayah"} onError={() => setError("audio_unavailable")}>

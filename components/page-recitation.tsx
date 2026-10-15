@@ -4,12 +4,11 @@ import { createPortal } from "react-dom";
 import { createPagePlayback, type PlaybackStatus } from "@/lib/page-playback";
 import { useI18n } from "./language-provider";
 
-export function PageRecitation({ keys, reciter, audioRef, onActiveAyah, playbackTarget, onPauseSave, saving, resumeKey, autoPlay, onRecitationEnabled, onVerseCompleted }: { onVerseCompleted?: (key: string) => void; autoPlay?: boolean; onRecitationEnabled?: (enabled: boolean) => void; resumeKey?: string; onPauseSave?: (key: string) => Promise<void>; saving?: boolean; playbackTarget?: HTMLDivElement | null; keys: string[]; reciter: string; audioRef: RefObject<HTMLAudioElement | null>; onActiveAyah?: (key: string | null) => void }) {
+export function PageRecitation({ keys, reciter, audioRef, onActiveAyah, playbackTarget, onPauseSave, saving, autoPlay, onRecitationEnabled, onVerseCompleted }: { onVerseCompleted?: (key: string) => void; autoPlay?: boolean; onRecitationEnabled?: (enabled: boolean) => void; onPauseSave?: (key: string) => Promise<void>; saving?: boolean; playbackTarget?: HTMLDivElement | null; keys: string[]; reciter: string; audioRef: RefObject<HTMLAudioElement | null>; onActiveAyah?: (key: string | null) => void }) {
   const { language } = useI18n(), ar = language === "ar";
-  const [status, setStatus] = useState<PlaybackStatus>("idle"), [index, setIndex] = useState(() => Math.max(0, keys.indexOf(resumeKey ?? "")));
+  const [status, setStatus] = useState<PlaybackStatus>("idle"), [index, setIndex] = useState(0);
   const controller = useRef<ReturnType<typeof createPagePlayback> | null>(null);
   const startAutomatically = useRef(autoPlay);
-  const initialKey = useRef(resumeKey);
   const playingKey = useRef<string | null>(null);
   const signature = keys.join(",");
   useEffect(() => {
@@ -36,7 +35,7 @@ export function PageRecitation({ keys, reciter, audioRef, onActiveAyah, playback
         // Providers that disallow cross-origin downloads still support normal media playback.
         return data.audio;
       }
-    }, (next, cursor) => { playingKey.current = signature.split(",")[cursor] ?? null; if (next !== "playing") onActiveAyah?.(null); if (next === "error") onRecitationEnabled?.(false); setStatus(next); setIndex(cursor); }, initialKey.current);
+    }, (next, cursor) => { playingKey.current = signature.split(",")[cursor] ?? null; if (next !== "playing") onActiveAyah?.(null); if (next === "error") onRecitationEnabled?.(false); setStatus(next); setIndex(cursor); });
     controller.current = playback;
     if (startAutomatically.current && signature) void playback.play();
     return () => { playback.dispose(); media.removeAttribute("src"); media.load(); for (const url of localAudio) URL.revokeObjectURL(url); controller.current = null; onActiveAyah?.(null); };
@@ -57,7 +56,7 @@ export function PageRecitation({ keys, reciter, audioRef, onActiveAyah, playback
     </p>
   </div>;
   return <>
-    <audio ref={audioRef} preload="none" onPlaying={() => onActiveAyah?.(playingKey.current)} onPause={() => onActiveAyah?.(null)} onWaiting={() => onActiveAyah?.(null)} onEnded={() => { if (playingKey.current) onVerseCompleted?.(playingKey.current); controller.current?.ended(); }} onError={() => controller.current?.error()} />
+    <audio ref={audioRef} preload="none" onPlaying={() => onActiveAyah?.(playingKey.current)} onPause={() => onActiveAyah?.(null)} onWaiting={() => onActiveAyah?.(null)} onEnded={() => { const completedKey = playingKey.current; controller.current?.ended(); if (completedKey) onVerseCompleted?.(completedKey); }} onError={() => controller.current?.error()} />
     {playbackTarget ? createPortal(controls, playbackTarget) : playbackTarget === undefined ? controls : null}
   </>;
 }

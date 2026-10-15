@@ -33,7 +33,7 @@ export async function recordCompletedAyahs(surah: number, start: number, end: nu
     const { db, user } = await session();
     const { error } = await db.from("journey_reading_days").upsert(keys.map(verse_key => ({ user_id: user.id, reading_date: day, verse_key })), { onConflict: "user_id,reading_date,verse_key", ignoreDuplicates: true });
     if (error) return { error: "activity_unavailable" };
-    revalidatePath("/protected");
+    // DailyGoal reads fresh activity on mount/focus. Avoid refreshing the active reader after every verse.
     return { success: true };
   } catch { return { error: "activity_unavailable" }; }
 }
