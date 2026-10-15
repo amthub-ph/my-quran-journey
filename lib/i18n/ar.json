@@ -272,4 +272,7 @@
   "Could not save language. Please try again.": "تعذر حفظ اللغة. يرجى المحاولة مجددًا.",
   "Something went wrong. Please try again.": "حدث خطأ. يرجى المحاولة مجددًا.",
   "Content is temporarily unavailable. Please try again.": "المحتوى غير متاح مؤقتًا. يرجى المحاولة مجددًا."
+,
+"Loading translation…":"جارٍ تحميل الترجمة…",
+"Retry translation":"إعادة تحميل الترجمة"
 }

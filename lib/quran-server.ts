@@ -56,19 +56,16 @@ type Resource = { id: number; name?: string; author_name?: string; reciter_name?
 type QFVerse = { verse_key: string; translations?: { resource_id: number; text: string }[]; audio?: { url?: string } };
 async function foundation(key: string) {
   const translationId = Number(process.env.QF_TRANSLATION_ID || 85)
-  const recitationId = Number(process.env.QF_RECITATION_ID || 7);
-  const [translationList, recitationList, data] = await Promise.all([
-    qf("resources/translations?language=en"), qf("resources/recitations?language=en"),
-    qf(`verses/by_key/${key}?translations=${translationId}&audio=${recitationId}`),
+
+  const [translationList, data] = await Promise.all([
+    qf("resources/translations?language=en"),
+    qf(`verses/by_key/${key}?translations=${translationId}`),
   ]);
   const translator = (translationList.translations as Resource[]).find(r => r.id === translationId && r.language_name?.toLowerCase() === "english");
-  const reciter = (recitationList.recitations as Resource[]).find(r => r.id === recitationId);
   const verse = data.verse as QFVerse;
-  if (verse?.verse_key !== key || !translator || !reciter) throw new Error("Quran Foundation resource validation failed.");
+  if (verse?.verse_key !== key || !translator) throw new Error("Quran Foundation resource validation failed.");
   const translation = verse.translations?.find(t => t.resource_id === translationId);
-  const audio = verse.audio?.url ? new URL(verse.audio.url, "https://verses.quran.com/") : undefined;
-  if (audio && (audio.protocol !== "https:" || !["verses.quran.com", "audio.qurancdn.com", "download.quranicaudio.com"].includes(audio.hostname))) throw new Error("Unexpected audio provider URL");
-  return { english: translation?.text, englishSource: translator.author_name || translator.name, audio: audio?.href, reciter: reciter.reciter_name || reciter.name };
+  return { english: translation?.text, englishSource: translator.author_name || translator.name };
 }
 async function tagalog(key: string) {
   const { surah, ayah } = parseVerseKey(key);

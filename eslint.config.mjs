@@ -10,7 +10,10 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  { ignores: [".next/**", "out/**", "build/**", "work/**", ".journey-backups/**", "next-env.d.ts"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  { files: ["tailwind.config.ts"], rules: { "@typescript-eslint/no-require-imports": "off" } },
+  { files: ["tests/**/*.cjs"], rules: { "@typescript-eslint/no-require-imports": "off", "@next/next/no-assign-module-variable": "off" } },
 ];
 
 export default eslintConfig;

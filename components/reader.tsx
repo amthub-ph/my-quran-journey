@@ -3,6 +3,7 @@ import { useI18n } from "@/components/language-provider";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { savePosition } from "@/app/actions/journey";
+import { Recitation } from "./recitation";
 import type { VerseContent } from "@/lib/quran";
 
 function PublishedText({text}:{text:string}) {
@@ -108,13 +109,13 @@ async function save() {
       <div><progress aria-label={t("Position within this surah")} max={verses.length} value={ayah} className="w-full"/><p className="text-sm text-[var(--muted)]">{percent}{t("% through this surah by position. This does not count every earlier ayah as read.")}</p></div>
       <p lang="ar" dir="rtl" translate="no" className="arabic-text text-3xl sm:text-4xl py-5 leading-loose">{verse.arabic}</p>
       <p className="text-xs">{t("Arabic:")}{" "}<a className="underline" href="https://tanzil.net" target="_blank" rel="noreferrer">{t("Tanzil Project")}</a> {t("· Uthmani, Ḥafṣ ʿan ʿĀṣim · Version 1.1. Text preserved unchanged.")}</p>
-      {loading&&<p role="status">{t("Loading translation and recitation…")}</p>}
+      {loading&&<p role="status">{t("Loading translation…")}</p>}
       {language==="english"&&content?.english&&<div lang="en" dir="ltr" translate="no" className="space-y-3"><p className="text-lg"><PublishedText text={content.english}/></p><p className="text-xs">{t("Translation of the meanings:")}{" "}{content.englishSource} · <a className="underline" href="https://quran.com">{t("Quran Foundation")}</a></p></div>}
       {language==="tagalog"&&content?.tagalog&&<div lang="tl" dir="ltr" translate="no" className="space-y-3"><p className="text-lg whitespace-pre-wrap">{content.tagalog}</p>{content.tagalogFootnotes&&<div className="text-sm border-t pt-3"><h3 className="font-semibold">Mga talababa / Footnotes</h3><p className="whitespace-pre-wrap">{content.tagalogFootnotes}</p></div>}<p className="text-xs">Salin sa Wikang Filipino (Tagalog) ng Sentro ng Rowad sa Pagsasalin · <a className="underline" href={`https://quranenc.com/tl/browse/tagalog_rwwad/${surah}`}>QuranEnc</a> · Version {content.tagalogVersion}. Published with Rabwah Da‘wah Association, the Association for Serving Islamic Content in Languages, and IslamHouse. <a className="underline" href="https://quranenc.com/en/home/api">Source and terms</a>.</p></div>}
       {!loading&&language!=="arabic"&&!(language==="english"?content?.english:content?.tagalog)&&<p>{t("Selected translation is unavailable. The Arabic text remains available.")}</p>}
-      {content?.audio&&<div><p className="text-sm mb-2">{t("Recitation:")}{" "}{content.reciter} {t("· Quran Foundation")}</p><audio key={verse.key} ref={audioRef} controls preload="none" src={content.audio} className="w-full" onError={()=>setStatus("Audio could not be played. Check your connection and retry.")}>{t("Your browser does not support audio playback.")}</audio></div>}
+      <Recitation verseKey={verse.key} audioRef={audioRef} />
       {content?.notices.map((notice,i)=><p key={i} className="journey-warning" role="status">{t(notice)}</p>)}
-      {!!content?.notices.length&&<button className="quran-btn-secondary" onClick={()=>setRetry(r=>r+1)}>{t("Retry translation / audio")}</button>}
+      {!!content?.notices.length&&<button className="quran-btn-secondary" onClick={()=>setRetry(r=>r+1)}>{t("Retry translation")}</button>}
      <div className="flex flex-wrap items-center justify-between gap-4">
   <button
    className="quran-btn-secondary flex h-16 w-16 items-center justify-center text-3xl font-bold text-[#17372C] border-2 border-[#315C4B]"
