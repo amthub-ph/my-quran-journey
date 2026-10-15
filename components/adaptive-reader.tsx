@@ -134,7 +134,7 @@ export function Reader({ surah, initialAyah, verses, initialLanguage, databaseWa
     if (complete) setStatus("Completing Surah...");
     try {
       if (complete) await recordReading(surah, view === "book" && visiblePage ? visiblePage.start : ayah, verses.length);
-      const result = await savePosition(complete ? `${surah}:${verses.length}` : current.key);
+      const result = await savePosition(complete ? `${surah}:${verses.length}` : current.key, complete ? "complete" : "save");
       if (result.error) setStatus(result.error);
       else {
         setDirty(false);

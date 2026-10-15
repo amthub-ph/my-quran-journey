@@ -1,8 +1,8 @@
-export async function saveReaderPosition(key: string): Promise<{ success?: boolean; error?: string }> {
+export async function saveReaderPosition(key: string, mode: "save" | "complete" | "restart" = "save"): Promise<{ success?: boolean; error?: string }> {
   const response = await fetch("/api/reading-position", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key }),
+    body: JSON.stringify({ key, mode }),
   });
   const result = await response.json();
   if (!response.ok || result.success !== true) return { error: result.error || "Progress could not be saved. Please try again." };
